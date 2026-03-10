@@ -15,7 +15,7 @@ npm install smapped-traces
 | `smapped-traces/client` | `SourceMappedSpanExporter`, `extractDebugIdsFromStack`, `getDebugIdsByUrl` | Client-side span exporter with debug ID enrichment |
 | `smapped-traces/route` | `createTracesHandler`, `createSourceMapResolver` | Request handler that resolves traces and forwards to your OTEL collector |
 | `smapped-traces/resolve` | `createSourceMapResolver`, `formatStackTrace` | Standalone source map resolution (no request handling) |
-| `smapped-traces/store` | `SourceMapStore`, `createSqliteStore`, `createHttpStore`, `createStoreHandler` | Source map storage backends and HTTP handler |
+| `smapped-traces/store` | `SourceMapStore`, `createHttpStore`, `createStoreHandler` | HTTP store client and handler |
 
 ## Usage
 
@@ -25,11 +25,12 @@ npm install smapped-traces
 
 ```ts
 import { SourceMappedSpanExporter } from "smapped-traces/client";
-import { BatchSpanProcessor, WebTracerProvider } from "@opentelemetry/sdk-trace-web";
+import { SimpleSpanProcessor } from "@opentelemetry/sdk-trace-base";
+import { WebTracerProvider } from "@opentelemetry/sdk-trace-web";
 
 const exporter = new SourceMappedSpanExporter("/api/sourcemaps");
 const provider = new WebTracerProvider({
-  spanProcessors: [new BatchSpanProcessor(exporter)],
+  spanProcessors: [new SimpleSpanProcessor(exporter)],
 });
 provider.register();
 ```
@@ -42,11 +43,12 @@ provider.register();
 // Next.js: app/api/sourcemaps/route.ts
 import { OTLPTraceExporter } from "@opentelemetry/exporter-trace-otlp-http";
 import { createTracesHandler } from "smapped-traces/route";
-import { createSqliteStore } from "smapped-traces/store";
+import { createSqliteStore } from "@smapped-traces/sqlite";
+import { join } from "node:path";
 
 export const POST = createTracesHandler({
   exporter: new OTLPTraceExporter({ url: "http://localhost:4318/v1/traces" }),
-  store: createSqliteStore(".next/sourcemaps.db"),
+  store: createSqliteStore(join(process.cwd(), ".next/sourcemaps.db")),
 });
 ```
 
@@ -66,7 +68,7 @@ Deno.serve({ port: 8080 }, handler);
 
 ```ts
 import { createSourceMapResolver } from "smapped-traces/resolve";
-import { createSqliteStore } from "smapped-traces/store";
+import { createSqliteStore } from "@smapped-traces/sqlite";
 
 const resolver = createSourceMapResolver({
   store: createSqliteStore("./sourcemaps.db"),
@@ -81,14 +83,18 @@ resolver.close();
 
 ### Store
 
-Source maps are stored and retrieved through the `SourceMapStore` interface. Two built-in implementations are provided.
+Source maps are stored and retrieved through the `SourceMapStore` interface.
 
 #### SQLite Store
 
-Local storage backed by a SQLite database. The database and table are created on first write.
+Install `@smapped-traces/sqlite` for local or single-server storage:
+
+```bash
+npm install @smapped-traces/sqlite
+```
 
 ```ts
-import { createSqliteStore } from "smapped-traces/store";
+import { createSqliteStore } from "@smapped-traces/sqlite";
 
 const store = createSqliteStore("./sourcemaps.db");
 ```
@@ -108,7 +114,8 @@ const store = createHttpStore("https://sourcemaps.internal");
 `createStoreHandler` exposes a `SourceMapStore` as a REST API (`GET /:debugId`, `PUT /:debugId`). Deploy as a standalone service to share source maps across build and runtime environments.
 
 ```ts
-import { createSqliteStore, createStoreHandler } from "smapped-traces/store";
+import { createStoreHandler } from "smapped-traces/store";
+import { createSqliteStore } from "@smapped-traces/sqlite";
 
 const store = createSqliteStore("./sourcemaps.db");
 Bun.serve({ port: 8081, fetch: createStoreHandler(store) });
@@ -121,10 +128,10 @@ Implement this interface to provide a custom storage backend:
 ```ts
 interface SourceMapStore {
   /** Retrieves a source map by debug ID. Returns null if not found. */
-  get(debugId: string): Promise<string | null>;
+  get(debugId: string): string | null | Promise<string | null>;
 
   /** Stores a source map JSON string by debug ID. */
-  put(debugId: string, content: string): Promise<void>;
+  put(debugId: string, content: string): void | Promise<void>;
 
   /** Releases resources held by the store (optional). */
   close?(): void;

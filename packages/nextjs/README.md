@@ -5,7 +5,7 @@ Next.js plugin for build-time source map collection and upload.
 ## Installation
 
 ```bash
-npm install smapped-traces @smapped-traces/nextjs
+npm install smapped-traces @smapped-traces/nextjs @smapped-traces/sqlite
 ```
 
 ## Usage
@@ -17,7 +17,7 @@ Wrap your Next.js config with `withSourceMaps()` and provide a `store` factory:
 ```ts
 // next.config.mjs
 import { withSourceMaps } from "@smapped-traces/nextjs";
-import { createSqliteStore } from "smapped-traces/store";
+import { createSqliteStore } from "@smapped-traces/sqlite";
 import { join } from "node:path";
 
 export default withSourceMaps(

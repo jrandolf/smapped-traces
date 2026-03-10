@@ -81,7 +81,7 @@ const store = createS3Store({
   prefix: "sourcemaps/",
 });
 
-export default withSourceMaps({ /* your config */ }, { store });
+export default withSourceMaps({ /* your config */ }, { store: () => store });
 ```
 
 ## With `createTracesHandler()` (Runtime)
