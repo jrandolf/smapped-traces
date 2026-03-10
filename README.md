@@ -14,6 +14,7 @@ Source map resolution for OpenTelemetry errors. Automatically resolves minified 
 | --- | --- |
 | [`smapped-traces`](./packages/core) | Core library — client exporter, route handler, source map resolver, and store abstraction |
 | [`@smapped-traces/nextjs`](./packages/nextjs) | Next.js plugin — build-time source map collection via `withSourceMaps()` |
+| [`@smapped-traces/sqlite`](./packages/sqlite) | SQLite-backed source map store for local and single-server deployments |
 | [`@smapped-traces/s3`](./packages/s3) | S3-compatible source map store (AWS S3, GCS, Cloudflare R2) |
 
 ## Quick Start (Next.js)
@@ -21,7 +22,7 @@ Source map resolution for OpenTelemetry errors. Automatically resolves minified 
 ### 1. Install
 
 ```bash
-npm install smapped-traces @smapped-traces/nextjs
+npm install smapped-traces @smapped-traces/nextjs @smapped-traces/sqlite
 ```
 
 ### 2. Configure Next.js
@@ -29,10 +30,17 @@ npm install smapped-traces @smapped-traces/nextjs
 ```ts
 // next.config.mjs
 import { withSourceMaps } from "@smapped-traces/nextjs";
+import { createSqliteStore } from "@smapped-traces/sqlite";
+import { join } from "node:path";
 
-export default withSourceMaps({
-  // your config
-});
+export default withSourceMaps(
+  {
+    // your config
+  },
+  {
+    store: (distDir) => createSqliteStore(join(distDir, "sourcemaps.db")),
+  }
+);
 ```
 
 ### 3. Set Up the Client Exporter
@@ -40,11 +48,12 @@ export default withSourceMaps({
 ```ts
 // instrumentation-client.ts
 import { SourceMappedSpanExporter } from "smapped-traces/client";
-import { BatchSpanProcessor, WebTracerProvider } from "@opentelemetry/sdk-trace-web";
+import { SimpleSpanProcessor } from "@opentelemetry/sdk-trace-base";
+import { WebTracerProvider } from "@opentelemetry/sdk-trace-web";
 
 const exporter = new SourceMappedSpanExporter("/api/sourcemaps");
 const provider = new WebTracerProvider({
-  spanProcessors: [new BatchSpanProcessor(exporter)],
+  spanProcessors: [new SimpleSpanProcessor(exporter)],
 });
 provider.register();
 ```
@@ -55,13 +64,14 @@ provider.register();
 // app/api/sourcemaps/route.ts
 import { OTLPTraceExporter } from "@opentelemetry/exporter-trace-otlp-http";
 import { createTracesHandler } from "smapped-traces/route";
-import { createSqliteStore } from "smapped-traces/store";
+import { createSqliteStore } from "@smapped-traces/sqlite";
+import { join } from "node:path";
 
 const OTLP_ENDPOINT = process.env.OTEL_EXPORTER_OTLP_ENDPOINT ?? "http://localhost:4318";
 
 export const POST = createTracesHandler({
   exporter: new OTLPTraceExporter({ url: `${OTLP_ENDPOINT}/v1/traces` }),
-  store: createSqliteStore(".next/sourcemaps.db"),
+  store: createSqliteStore(join(process.cwd(), ".next/sourcemaps.db")),
 });
 ```
 
@@ -69,11 +79,11 @@ export const POST = createTracesHandler({
 
 Source maps are accessed through the `SourceMapStore` interface. Built-in stores:
 
-| Store | Description |
-| --- | --- |
-| `createSqliteStore(dbPath)` | Local SQLite database |
-| `createHttpStore(url)` | HTTP client for a remote store handler |
-| `createS3Store(options)` | S3-compatible bucket (AWS, GCS, R2) |
+| Store | Package | Description |
+| --- | --- | --- |
+| `createSqliteStore(dbPath)` | `@smapped-traces/sqlite` | Local SQLite database |
+| `createHttpStore(url)` | `smapped-traces/store` | HTTP client for a remote store handler |
+| `createS3Store(options)` | `@smapped-traces/s3` | S3-compatible bucket (AWS, GCS, R2) |
 
 ### Remote Store
 
@@ -81,7 +91,8 @@ Deploy a storage service and point your build + handler at it:
 
 ```ts
 // storage-service.ts — deploy separately
-import { createSqliteStore, createStoreHandler } from "smapped-traces/store";
+import { createStoreHandler } from "smapped-traces/store";
+import { createSqliteStore } from "@smapped-traces/sqlite";
 
 const store = createSqliteStore("./sourcemaps.db");
 Bun.serve({ port: 8081, fetch: createStoreHandler(store) });
@@ -94,7 +105,7 @@ import { createHttpStore } from "smapped-traces/store";
 
 export default withSourceMaps(
   { /* your config */ },
-  { store: createHttpStore("https://sourcemaps.internal") }
+  { store: () => createHttpStore("https://sourcemaps.internal") }
 );
 ```
 
@@ -137,7 +148,7 @@ The handler uses standard Web `Request`/`Response`, so it works outside Next.js:
 // Bun
 import { OTLPTraceExporter } from "@opentelemetry/exporter-trace-otlp-http";
 import { createTracesHandler } from "smapped-traces/route";
-import { createSqliteStore } from "smapped-traces/store";
+import { createSqliteStore } from "@smapped-traces/sqlite";
 
 const handler = createTracesHandler({
   exporter: new OTLPTraceExporter({ url: "http://localhost:4318/v1/traces" }),
@@ -156,13 +167,19 @@ Bun.serve({ port: 8080, fetch: handler });
 | `smapped-traces/client` | `SourceMappedSpanExporter` — Client-side span exporter with debug ID enrichment |
 | `smapped-traces/route` | `createTracesHandler()` — Request handler with source map resolution |
 | `smapped-traces/resolve` | `createSourceMapResolver()` — Standalone source map resolver |
-| `smapped-traces/store` | `SourceMapStore`, `createSqliteStore()`, `createHttpStore()`, `createStoreHandler()` |
+| `smapped-traces/store` | `SourceMapStore`, `createHttpStore()`, `createStoreHandler()` |
 
 ### `@smapped-traces/nextjs`
 
 | Path | Description |
 | --- | --- |
 | `@smapped-traces/nextjs` | `withSourceMaps()` — Next.js config helper for build-time source map collection |
+
+### `@smapped-traces/sqlite`
+
+| Path | Description |
+| --- | --- |
+| `@smapped-traces/sqlite` | `createSqliteStore()` — SQLite-backed store |
 
 ### `@smapped-traces/s3`
 
