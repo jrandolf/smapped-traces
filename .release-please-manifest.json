@@ -1,6 +1,6 @@
 {
-  "packages/core": "0.1.0",
-  "packages/nextjs": "0.1.0",
-  "packages/s3": "0.1.0",
+  "packages/core": "0.1.1",
+  "packages/nextjs": "0.1.1",
+  "packages/s3": "0.1.1",
   "packages/sqlite": "0.1.0"
 }
