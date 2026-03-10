@@ -1,0 +1,49 @@
+{
+  "name": "@smapped-traces/sqlite",
+  "version": "0.0.0",
+  "description": "SQLite source map store for smapped-traces",
+  "license": "Apache-2.0",
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/jrandolf/smapped-traces.git",
+    "directory": "packages/sqlite"
+  },
+  "keywords": [
+    "sqlite",
+    "opentelemetry",
+    "otel",
+    "source-map",
+    "sourcemap",
+    "error-tracking"
+  ],
+  "type": "module",
+  "exports": {
+    ".": {
+      "types": "./build/index.d.ts",
+      "default": "./build/index.js"
+    }
+  },
+  "files": [
+    "build",
+    "src",
+    "!src/**/*.test.ts",
+    "!build/**/*.test.*"
+  ],
+  "scripts": {
+    "build": "tsc -b tsconfig.lib.json",
+    "test": "vitest run",
+    "typecheck": "tsc -b --noEmit"
+  },
+  "peerDependencies": {
+    "better-sqlite3": "catalog:",
+    "smapped-traces": "catalog:"
+  },
+  "devDependencies": {
+    "@types/better-sqlite3": "catalog:",
+    "@types/node": "catalog:",
+    "better-sqlite3": "catalog:",
+    "smapped-traces": "workspace:*",
+    "typescript": "catalog:",
+    "vitest": "catalog:"
+  }
+}

@@ -1,0 +1,73 @@
+{
+  "name": "smapped-traces",
+  "version": "0.0.0",
+  "description": "Source map resolution for OpenTelemetry errors",
+  "license": "Apache-2.0",
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/jrandolf/smapped-traces.git",
+    "directory": "packages/core"
+  },
+  "keywords": [
+    "opentelemetry",
+    "otel",
+    "source-map",
+    "sourcemap",
+    "error-tracking",
+    "debug-id",
+    "otlp",
+    "stack-trace"
+  ],
+  "type": "module",
+  "exports": {
+    "./client": {
+      "types": "./build/client.d.ts",
+      "default": "./build/client.js"
+    },
+    "./route": {
+      "types": "./build/route.d.ts",
+      "default": "./build/route.js"
+    },
+    "./resolve": {
+      "types": "./build/resolve.d.ts",
+      "default": "./build/resolve.js"
+    },
+    "./store": {
+      "types": "./build/store.d.ts",
+      "default": "./build/store.js"
+    }
+  },
+  "files": [
+    "build",
+    "src",
+    "!src/**/*.test.ts",
+    "!build/**/*.test.*"
+  ],
+  "scripts": {
+    "build": "tsc -b tsconfig.lib.json",
+    "test": "vitest run",
+    "typecheck": "tsc -b --noEmit"
+  },
+  "dependencies": {
+    "@bufbuild/protobuf": "catalog:",
+    "source-map": "catalog:",
+    "stacktrace-parser": "catalog:"
+  },
+  "peerDependencies": {
+    "@opentelemetry/api": "catalog:",
+    "@opentelemetry/core": "catalog:",
+    "@opentelemetry/resources": "catalog:",
+    "@opentelemetry/sdk-trace-base": "catalog:",
+    "@opentelemetry/semantic-conventions": "catalog:"
+  },
+  "devDependencies": {
+    "@opentelemetry/api": "catalog:",
+    "@opentelemetry/core": "catalog:",
+    "@opentelemetry/resources": "catalog:",
+    "@opentelemetry/sdk-trace-base": "catalog:",
+    "@opentelemetry/semantic-conventions": "catalog:",
+    "@types/node": "catalog:",
+    "typescript": "catalog:",
+    "vitest": "catalog:"
+  }
+}
