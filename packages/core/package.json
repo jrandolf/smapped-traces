@@ -1,6 +1,6 @@
 {
   "name": "smapped-traces",
-  "version": "0.0.0",
+  "version": "0.1.0",
   "description": "Source map resolution for OpenTelemetry errors",
   "license": "Apache-2.0",
   "repository": {
