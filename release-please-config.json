@@ -1,0 +1,23 @@
+{
+  "$schema": "https://raw.githubusercontent.com/googleapis/release-please/main/schemas/config.json",
+  "initial-version": "0.1.0",
+  "packages": {
+    "packages/core": {
+      "release-type": "node",
+      "package-name": "smapped-traces",
+      "include-component-in-tag": false
+    },
+    "packages/nextjs": {
+      "release-type": "node",
+      "package-name": "@smapped-traces/nextjs"
+    },
+    "packages/s3": {
+      "release-type": "node",
+      "package-name": "@smapped-traces/s3"
+    },
+    "packages/sqlite": {
+      "release-type": "node",
+      "package-name": "@smapped-traces/sqlite"
+    }
+  }
+}

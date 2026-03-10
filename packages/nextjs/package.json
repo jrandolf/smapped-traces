@@ -1,0 +1,49 @@
+{
+  "name": "@smapped-traces/nextjs",
+  "version": "0.0.0",
+  "description": "Next.js source map collection for smapped-traces",
+  "license": "Apache-2.0",
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/jrandolf/smapped-traces.git",
+    "directory": "packages/nextjs"
+  },
+  "keywords": [
+    "nextjs",
+    "next.js",
+    "opentelemetry",
+    "otel",
+    "source-map",
+    "sourcemap",
+    "error-tracking"
+  ],
+  "type": "module",
+  "exports": {
+    ".": {
+      "types": "./build/index.d.ts",
+      "default": "./build/index.js"
+    }
+  },
+  "files": [
+    "build",
+    "src"
+  ],
+  "scripts": {
+    "build": "tsc -b tsconfig.lib.json",
+    "typecheck": "tsc -b --noEmit"
+  },
+  "dependencies": {
+    "fast-glob": "catalog:"
+  },
+  "peerDependencies": {
+    "next": "catalog:",
+    "smapped-traces": "catalog:"
+  },
+  "devDependencies": {
+    "@types/node": "catalog:",
+    "next": "catalog:",
+    "smapped-traces": "workspace:*",
+    "source-map": "catalog:",
+    "typescript": "catalog:"
+  }
+}

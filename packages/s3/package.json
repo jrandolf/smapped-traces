@@ -1,0 +1,45 @@
+{
+  "name": "@smapped-traces/s3",
+  "version": "0.0.0",
+  "description": "S3-compatible source map store for smapped-traces",
+  "license": "Apache-2.0",
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/jrandolf/smapped-traces.git",
+    "directory": "packages/s3"
+  },
+  "keywords": [
+    "s3",
+    "aws",
+    "cloudflare-r2",
+    "gcs",
+    "opentelemetry",
+    "otel",
+    "source-map",
+    "sourcemap"
+  ],
+  "type": "module",
+  "exports": {
+    ".": {
+      "types": "./build/index.d.ts",
+      "default": "./build/index.js"
+    }
+  },
+  "files": [
+    "build",
+    "src"
+  ],
+  "scripts": {
+    "build": "tsc -b tsconfig.lib.json",
+    "typecheck": "tsc -b --noEmit"
+  },
+  "peerDependencies": {
+    "@aws-sdk/client-s3": "catalog:",
+    "smapped-traces": "catalog:"
+  },
+  "devDependencies": {
+    "@aws-sdk/client-s3": "catalog:",
+    "smapped-traces": "workspace:*",
+    "typescript": "catalog:"
+  }
+}
