@@ -1,0 +1,18 @@
+{
+  "extends": "./tsconfig.base.json",
+  "files": [],
+  "references": [
+    {
+      "path": "./packages/core"
+    },
+    {
+      "path": "./packages/nextjs"
+    },
+    {
+      "path": "./packages/s3"
+    },
+    {
+      "path": "./packages/sqlite"
+    }
+  ]
+}

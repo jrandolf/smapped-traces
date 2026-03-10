@@ -1,0 +1,22 @@
+{
+  "private": true,
+  "packageManager": "pnpm@10.31.0",
+  "scripts": {
+    "lint": "ultracite check",
+    "format": "ultracite fix",
+    "prepare": "test -n \"$CI\" || lefthook install"
+  },
+  "devDependencies": {
+    "@biomejs/biome": "catalog:",
+    "lefthook": "catalog:",
+    "ultracite": "catalog:"
+  },
+  "pnpm": {
+    "onlyBuiltDependencies": [
+      "better-sqlite3",
+      "esbuild",
+      "lefthook",
+      "sharp"
+    ]
+  }
+}
