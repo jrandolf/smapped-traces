@@ -157,12 +157,16 @@ jobs:
       - name: Publish smapped-traces
         run: pnpm publish --no-git-checks --provenance --access public
         working-directory: packages/core
+        continue-on-error: true
       - name: Publish @smapped-traces/nextjs
         run: pnpm publish --no-git-checks --provenance --access public
         working-directory: packages/nextjs
+        continue-on-error: true
       - name: Publish @smapped-traces/s3
         run: pnpm publish --no-git-checks --provenance --access public
         working-directory: packages/s3
+        continue-on-error: true
       - name: Publish @smapped-traces/sqlite
         run: pnpm publish --no-git-checks --provenance --access public
         working-directory: packages/sqlite
+        continue-on-error: true
