@@ -2,10 +2,11 @@
   "name": "smapped-traces",
   "version": "0.1.1",
   "description": "Source map resolution for OpenTelemetry errors",
+  "author": "Mathematic Inc",
   "license": "Apache-2.0",
   "repository": {
     "type": "git",
-    "url": "git+https://github.com/jrandolf/smapped-traces.git",
+    "url": "https://github.com/mathematic-inc/smapped-traces.git",
     "directory": "packages/core"
   },
   "keywords": [
