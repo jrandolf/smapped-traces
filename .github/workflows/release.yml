@@ -169,6 +169,4 @@ jobs:
         shell: bash
         run: |
           set -euo pipefail
-          npm publish ./dist/*.tgz --access public
-        env:
-          NODE_AUTH_TOKEN: ${{ secrets.NPM_TOKEN }}
+          npm publish ./dist/*.tgz --access public --provenance
