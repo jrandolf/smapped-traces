@@ -1,5 +1,12 @@
 # Changelog
 
+## [0.1.2](https://github.com/mathematic-inc/smapped-traces/compare/s3-v0.1.1...s3-v0.1.2) (2026-03-11)
+
+
+### Bug Fixes
+
+* Migrate repository to mathematic-inc organization ([#6](https://github.com/mathematic-inc/smapped-traces/issues/6)) ([d4f9034](https://github.com/mathematic-inc/smapped-traces/commit/d4f903450712bc09727923e35e995e3b64671d35))
+
 ## [0.1.1](https://github.com/mathematic-inc/smapped-traces/compare/s3-v0.1.0...s3-v0.1.1) (2026-03-10)
 
 ### Bug Fixes
