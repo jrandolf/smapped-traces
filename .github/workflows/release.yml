@@ -173,4 +173,11 @@ jobs:
           # authentication. setup-node injects github.token here by default which
           # causes npm to fail with 404 when attempting npm registry auth.
           unset NODE_AUTH_TOKEN
-          npm publish ./dist/*.tgz --access public --provenance
+          echo "--- npm config ---"
+          npm config list
+          echo "--- npmrc ---"
+          cat "${NPM_CONFIG_USERCONFIG:-/dev/null}" 2>/dev/null || true
+          echo "--- npm whoami ---"
+          npm whoami --registry https://registry.npmjs.org 2>&1 || true
+          echo "--- publish ---"
+          npm publish ./dist/*.tgz --access public --provenance --loglevel verbose
