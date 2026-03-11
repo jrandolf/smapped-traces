@@ -2,10 +2,11 @@
   "name": "@smapped-traces/nextjs",
   "version": "0.1.1",
   "description": "Next.js source map collection for smapped-traces",
+  "author": "Mathematic Inc",
   "license": "Apache-2.0",
   "repository": {
     "type": "git",
-    "url": "git+https://github.com/jrandolf/smapped-traces.git",
+    "url": "https://github.com/mathematic-inc/smapped-traces.git",
     "directory": "packages/nextjs"
   },
   "keywords": [

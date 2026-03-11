@@ -12,7 +12,7 @@ import type { SourceMapStore } from "./types.js";
  *
  * @example
  * ```ts
- * import { createSqliteStore, createStoreHandler } from '@jrandolf/sourcemap-otel/store'
+ * import { createSqliteStore, createStoreHandler } from 'smapped-traces/store'
  *
  * const store = createSqliteStore('./sourcemaps.db')
  * Bun.serve({ port: 8081, fetch: createStoreHandler(store) })
