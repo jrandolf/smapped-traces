@@ -206,3 +206,5 @@ Both are checked and merged automatically.
 ## License
 
 Apache-2.0
+
+> This project is free and open-source work by a 501(c)(3) non-profit. If you find it useful, please consider [donating](https://github.com/sponsors/mathematic-inc).

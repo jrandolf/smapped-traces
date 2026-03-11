@@ -2,10 +2,11 @@
   "name": "@smapped-traces/sqlite",
   "version": "0.1.0",
   "description": "SQLite source map store for smapped-traces",
+  "author": "Mathematic Inc",
   "license": "Apache-2.0",
   "repository": {
     "type": "git",
-    "url": "git+https://github.com/jrandolf/smapped-traces.git",
+    "url": "https://github.com/mathematic-inc/smapped-traces.git",
     "directory": "packages/sqlite"
   },
   "keywords": [
