@@ -159,6 +159,7 @@ jobs:
       - uses: actions/setup-node@53b83947a5a98c8d113130e565377fae1a50d02f # v6.3.0
         with:
           node-version: "22"
+          registry-url: "https://registry.npmjs.org"
       - name: Download release assets
         uses: actions/download-artifact@d3f86a106a0bac45b974a628896c90dbdf5c8093 # v4.3.0
         with:
@@ -168,4 +169,8 @@ jobs:
         shell: bash
         run: |
           set -euo pipefail
+          # Unset NODE_AUTH_TOKEN so npm falls through to OIDC trusted publisher
+          # authentication. setup-node injects github.token here by default which
+          # causes npm to fail with 404 when attempting npm registry auth.
+          unset NODE_AUTH_TOKEN
           npm publish ./dist/*.tgz --access public --provenance
