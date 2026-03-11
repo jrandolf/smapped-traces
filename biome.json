@@ -7,7 +7,15 @@
   },
   "files": {
     "ignoreUnknown": true,
-    "includes": ["!node_modules", "!**/build", "!**/src/generated"]
+    "includes": [
+      "!node_modules",
+      "!dist",
+      "!build",
+      "!**/dist",
+      "!**/build",
+      "!**/src/generated",
+      "!.pnpm-store"
+    ]
   },
   "formatter": {
     "enabled": true,

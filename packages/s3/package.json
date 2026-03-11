@@ -2,10 +2,11 @@
   "name": "@smapped-traces/s3",
   "version": "0.1.1",
   "description": "S3-compatible source map store for smapped-traces",
+  "author": "Mathematic Inc",
   "license": "Apache-2.0",
   "repository": {
     "type": "git",
-    "url": "git+https://github.com/jrandolf/smapped-traces.git",
+    "url": "https://github.com/mathematic-inc/smapped-traces.git",
     "directory": "packages/s3"
   },
   "keywords": [
