@@ -160,6 +160,9 @@ jobs:
         with:
           node-version: "22"
           registry-url: "https://registry.npmjs.org"
+          # Do not inject github.token as NODE_AUTH_TOKEN; OIDC trusted publisher
+          # handles authentication via id-token: write permission above.
+          token: ""
       - name: Download release assets
         uses: actions/download-artifact@d3f86a106a0bac45b974a628896c90dbdf5c8093 # v4.3.0
         with:
