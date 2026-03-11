@@ -74,7 +74,9 @@ jobs:
       - name: Install dependencies
         run: pnpm install --frozen-lockfile
       - name: Build
-        run: pnpm --filter "./${{ needs.meta.outputs.package_path }}..." run build
+        run: |
+          pnpm --filter smapped-traces run build
+          pnpm --filter "./${{ needs.meta.outputs.package_path }}" run build
       - name: Pack
         shell: bash
         run: |
@@ -167,6 +169,6 @@ jobs:
         shell: bash
         run: |
           set -euo pipefail
-          npm publish dist/*.tgz --access public
+          npm publish ./dist/*.tgz --access public
         env:
           NODE_AUTH_TOKEN: ${{ secrets.NPM_TOKEN }}
