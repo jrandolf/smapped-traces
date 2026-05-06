@@ -358,7 +358,7 @@ function fromAnyValue(
   anyValue: AnyValue | undefined
 ): AttributeValue | undefined {
   if (!anyValue?.value) {
-    return undefined;
+    return;
   }
 
   switch (anyValue.value.case) {
@@ -383,7 +383,7 @@ function fromAnyValue(
     case "bytesValue":
       return bytesToHex(anyValue.value.value);
     default:
-      return undefined;
+      return;
   }
 }
 
