@@ -36,7 +36,7 @@
   },
   "peerDependencies": {
     "@aws-sdk/client-s3": "catalog:",
-    "smapped-traces": "catalog:"
+    "smapped-traces": "workspace:^"
   },
   "devDependencies": {
     "@aws-sdk/client-s3": "catalog:",

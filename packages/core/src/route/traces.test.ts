@@ -343,9 +343,9 @@ describe("traces handler", () => {
     });
 
     it("filters debug_ids to only strings before resolving", async () => {
-      const getSpy = vi.fn((debugId: string) => {
-        return debugId === "valid-id" ? JSON.stringify(simpleSourceMap) : null;
-      });
+      const getSpy = vi.fn((debugId: string) =>
+        debugId === "valid-id" ? JSON.stringify(simpleSourceMap) : null
+      );
       const spyStore: SourceMapStore = {
         get: getSpy,
         put() {
