@@ -1,6 +1,6 @@
 {
   "name": "@smapped-traces/sqlite",
-  "version": "0.1.1",
+  "version": "0.1.2",
   "description": "SQLite source map store for smapped-traces",
   "author": "Mathematic Inc",
   "license": "Apache-2.0",
