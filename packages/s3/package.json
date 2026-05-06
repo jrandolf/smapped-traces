@@ -1,6 +1,6 @@
 {
   "name": "@smapped-traces/s3",
-  "version": "0.1.2",
+  "version": "0.1.3",
   "description": "S3-compatible source map store for smapped-traces",
   "author": "Mathematic Inc",
   "license": "Apache-2.0",
