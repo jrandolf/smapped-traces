@@ -37,7 +37,7 @@
   },
   "peerDependencies": {
     "better-sqlite3": "catalog:",
-    "smapped-traces": "catalog:"
+    "smapped-traces": "workspace:^"
   },
   "devDependencies": {
     "@types/better-sqlite3": "catalog:",

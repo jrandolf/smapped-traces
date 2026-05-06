@@ -61,10 +61,10 @@ export function formatStackTrace(
       result.push(formatFrame(resolved));
     } else {
       const originalLine = lines[frameStartIndex + i];
-      if (originalLine !== undefined) {
-        result.push(originalLine);
-      } else {
+      if (originalLine === undefined) {
         result.push(formatFrame(originalFrames[i]));
+      } else {
+        result.push(originalLine);
       }
     }
   }

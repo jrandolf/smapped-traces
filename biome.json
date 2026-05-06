@@ -62,5 +62,5 @@
       }
     }
   ],
-  "extends": ["ultracite/core"]
+  "extends": ["ultracite/biome/core"]
 }
