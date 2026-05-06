@@ -38,7 +38,7 @@
   },
   "peerDependencies": {
     "next": "catalog:",
-    "smapped-traces": "catalog:"
+    "smapped-traces": "workspace:^"
   },
   "devDependencies": {
     "@types/node": "catalog:",
