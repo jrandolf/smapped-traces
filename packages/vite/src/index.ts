@@ -1,34 +1,8 @@
 import { readFile, rm } from "node:fs/promises";
-import { join } from "node:path";
+import path from "node:path";
 import FastGlob from "fast-glob";
 import type { SourceMapStore } from "smapped-traces/store";
 import type { Plugin } from "vite";
-
-/**
- * Vite plugin that configures production builds for source map collection.
- *
- * Emits hidden source maps (no `sourceMappingURL` comment in the deployed
- * chunks) and stamps every chunk and map with a debug ID so
- * {@link collectSourceMaps} can key the store.
- */
-export function sourceMaps(): Plugin {
-  return {
-    name: "smapped-traces:source-maps",
-    apply: "build",
-    config() {
-      return {
-        build: {
-          sourcemap: "hidden",
-          rolldownOptions: {
-            output: {
-              sourcemapDebugIds: true,
-            },
-          },
-        },
-      };
-    },
-  };
-}
 
 /**
  * Options for {@link collectSourceMaps}.
@@ -81,14 +55,92 @@ export interface CollectSourceMapsResult {
 }
 
 /**
+ * Options for {@link sourceMaps}.
+ */
+export interface SourceMapsOptions {
+  /**
+   * When set, runs {@link collectSourceMaps} automatically once the final
+   * build output exists, via a post-ordered sequential `closeBundle` hook.
+   * That ordering runs after SvelteKit's adapter, which assembles its deploy
+   * directory in the same phase; for the SvelteKit client compile pass —
+   * which ends before the adapter runs — collection is skipped.
+   *
+   * `dir` defaults to the resolved `build.outDir`. A framework whose adapter
+   * assembles a separate deploy directory must set `dir` to that directory
+   * (for example SvelteKit `adapter-node`'s `"build"`); relative paths
+   * resolve against the project root.
+   */
+  collect?: Omit<CollectSourceMapsOptions, "dir"> & { dir?: string };
+}
+
+/**
+ * Vite plugin that configures production builds for source map collection.
+ *
+ * Emits hidden source maps (no `sourceMappingURL` comment in the deployed
+ * chunks) and stamps every chunk and map with a debug ID so
+ * {@link collectSourceMaps} can key the store. With
+ * {@link SourceMapsOptions.collect | collect} set, the sweep also runs
+ * automatically at the end of the build.
+ */
+export function sourceMaps(options: SourceMapsOptions = {}): Plugin {
+  const { collect } = options;
+  let dir: string;
+  let skip = false;
+  let info: (message: string) => void;
+
+  return {
+    name: "smapped-traces:source-maps",
+    apply: "build",
+    config() {
+      return {
+        build: {
+          sourcemap: "hidden",
+          rolldownOptions: {
+            output: {
+              sourcemapDebugIds: true,
+            },
+          },
+        },
+      };
+    },
+    configResolved(config) {
+      dir = path.resolve(config.root, collect?.dir ?? config.build.outDir);
+      // SvelteKit builds the client, then the server, and runs the adapter at
+      // the end of the server compile pass; only that pass sees the deploy
+      // directory.
+      skip =
+        config.plugins.some(
+          (plugin) => plugin.name === "vite-plugin-sveltekit-compile"
+        ) && !config.build.ssr;
+      info = (message) => config.logger.info(message);
+    },
+    closeBundle: {
+      order: "post",
+      sequential: true,
+      async handler() {
+        if (collect === undefined || skip) {
+          return;
+        }
+        const { deleted, stored } = await collectSourceMaps({
+          ...collect,
+          dir,
+        });
+        info(
+          `smapped-traces: stored ${stored} source maps, deleted ${deleted} map files`
+        );
+      },
+    },
+  };
+}
+
+/**
  * Collects debug-ID-keyed source maps from a build output directory into a
  * store, then deletes every `.map` file so no source maps deploy.
  *
- * Run this after the full build pipeline — including any framework
- * post-processing such as a SvelteKit adapter — has produced its final output
- * directory. Collection is deliberately not a build hook: framework plugins
- * run their adapters inside the build's own lifecycle, so a hook cannot
- * observe the final output.
+ * {@link sourceMaps} with the `collect` option runs this automatically. Call
+ * it directly when the build pipeline produces its final output outside the
+ * Vite build — for example a framework adapter the plugin does not know how
+ * to order against — and run it after that pipeline completes.
  */
 export async function collectSourceMaps(
   options: CollectSourceMapsOptions
@@ -110,7 +162,10 @@ export async function collectSourceMaps(
       maps
         .filter((relative) => included.has(relative))
         .map(async (relative) => {
-          const content = await readFile(join(options.dir, relative), "utf8");
+          const content = await readFile(
+            path.join(options.dir, relative),
+            "utf8"
+          );
           const { debugId } = JSON.parse(content) as { debugId?: unknown };
           if (typeof debugId === "string" && debugId.length > 0) {
             await store.put(debugId, content);
@@ -120,7 +175,9 @@ export async function collectSourceMaps(
           }
         })
     );
-    await Promise.all(maps.map((relative) => rm(join(options.dir, relative))));
+    await Promise.all(
+      maps.map((relative) => rm(path.join(options.dir, relative)))
+    );
   } finally {
     store.close?.();
   }
