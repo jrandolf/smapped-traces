@@ -19,6 +19,7 @@ catalog:
   stacktrace-parser: ^0.1.11
   typescript: ^6.0.3
   ultracite: ^7.6.3
+  vite: ^8.0.0
   vitest: ^4.1.5
 onlyBuiltDependencies:
   - "@biomejs/biome"

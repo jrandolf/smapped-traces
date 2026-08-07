@@ -14,6 +14,7 @@ Source map resolution for OpenTelemetry errors. Automatically resolves minified 
 | --- | --- |
 | [`smapped-traces`](./packages/core) | Core library — client exporter, route handler, source map resolver, and store abstraction |
 | [`@smapped-traces/nextjs`](./packages/nextjs) | Next.js plugin — build-time source map collection via `withSourceMaps()` |
+| [`@smapped-traces/vite`](./packages/vite) | Vite plugin — build-time source map collection via `sourceMaps()` and `collectSourceMaps()` |
 | [`@smapped-traces/sqlite`](./packages/sqlite) | SQLite-backed source map store for local and single-server deployments |
 | [`@smapped-traces/s3`](./packages/s3) | S3-compatible source map store (AWS S3, GCS, Cloudflare R2) |
 
