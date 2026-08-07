@@ -16,6 +16,9 @@
     },
     "packages/sqlite": {
       "release-type": "node"
+    },
+    "packages/vite": {
+      "release-type": "node"
     }
   },
   "plugins": ["sentence-case"]

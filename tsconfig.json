@@ -13,6 +13,9 @@
     },
     {
       "path": "./packages/sqlite"
+    },
+    {
+      "path": "./packages/vite"
     }
   ]
 }
