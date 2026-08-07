@@ -1,5 +1,12 @@
 # Changelog
 
+## [0.1.1](https://github.com/mathematic-inc/smapped-traces/compare/vite-v0.1.0...vite-v0.1.1) (2026-08-07)
+
+
+### Features
+
+* **vite:** Collect source maps from the plugin ([#29](https://github.com/mathematic-inc/smapped-traces/issues/29)) ([edcbc63](https://github.com/mathematic-inc/smapped-traces/commit/edcbc63ca0c0be9f3f1ba5c2e76b484aa03efb97))
+
 ## 0.1.0 (2026-08-07)
 
 
