@@ -29,4 +29,4 @@ jobs:
       - name: Typecheck
         run: pnpm -r run typecheck
       - name: Test
-        run: pnpm --filter smapped-traces --filter "@smapped-traces/sqlite" run test
+        run: pnpm --filter smapped-traces --filter "@smapped-traces/sqlite" --filter "@smapped-traces/vite" run test

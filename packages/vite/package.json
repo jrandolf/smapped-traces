@@ -1,0 +1,53 @@
+{
+  "name": "@smapped-traces/vite",
+  "version": "0.0.0",
+  "description": "Vite source map collection for smapped-traces",
+  "author": "Mathematic Inc",
+  "license": "Apache-2.0",
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/mathematic-inc/smapped-traces.git",
+    "directory": "packages/vite"
+  },
+  "keywords": [
+    "vite",
+    "sveltekit",
+    "opentelemetry",
+    "otel",
+    "source-map",
+    "sourcemap",
+    "error-tracking"
+  ],
+  "type": "module",
+  "exports": {
+    ".": {
+      "types": "./build/index.d.ts",
+      "default": "./build/index.js"
+    }
+  },
+  "files": [
+    "build",
+    "src",
+    "!src/**/*.test.ts",
+    "!build/**/*.test.*"
+  ],
+  "scripts": {
+    "build": "tsc -b tsconfig.lib.json",
+    "test": "vitest run",
+    "typecheck": "tsc -b --noEmit"
+  },
+  "dependencies": {
+    "fast-glob": "catalog:"
+  },
+  "peerDependencies": {
+    "smapped-traces": "workspace:^",
+    "vite": "catalog:"
+  },
+  "devDependencies": {
+    "@types/node": "catalog:",
+    "smapped-traces": "workspace:*",
+    "typescript": "catalog:",
+    "vite": "catalog:",
+    "vitest": "catalog:"
+  }
+}
