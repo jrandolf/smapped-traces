@@ -1,6 +1,6 @@
 {
   "name": "@smapped-traces/vite",
-  "version": "0.1.1",
+  "version": "0.1.2",
   "description": "Vite source map collection for smapped-traces",
   "author": "Mathematic Inc",
   "license": "Apache-2.0",

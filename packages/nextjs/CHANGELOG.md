@@ -1,5 +1,19 @@
 # Changelog
 
+## [0.1.4](https://github.com/mathematic-inc/smapped-traces/compare/nextjs-v0.1.3...nextjs-v0.1.4) (2026-08-23)
+
+
+### Features
+
+* Initial commit ([f084eab](https://github.com/mathematic-inc/smapped-traces/commit/f084eab7564bb66fe274d04e604f1640e7daf798))
+
+
+### Bug Fixes
+
+* Fix peer dependencies ([#24](https://github.com/mathematic-inc/smapped-traces/issues/24)) ([2e82189](https://github.com/mathematic-inc/smapped-traces/commit/2e821890c3241d33849c75a38b8492464021dd78))
+* Migrate repository to mathematic-inc organization ([#6](https://github.com/mathematic-inc/smapped-traces/issues/6)) ([c8f9732](https://github.com/mathematic-inc/smapped-traces/commit/c8f97325bb7c038a3e0117085c056eade56e7067))
+* Update outdated READMEs ([641e7bf](https://github.com/mathematic-inc/smapped-traces/commit/641e7bf396d0be6b8ee82266430b2b7377b43219))
+
 ## [0.1.3](https://github.com/mathematic-inc/smapped-traces/compare/nextjs-v0.1.2...nextjs-v0.1.3) (2026-05-06)
 
 

@@ -1,5 +1,18 @@
 # Changelog
 
+## [0.1.3](https://github.com/mathematic-inc/smapped-traces/compare/sqlite-v0.1.2...sqlite-v0.1.3) (2026-08-23)
+
+
+### Features
+
+* Initial commit ([f084eab](https://github.com/mathematic-inc/smapped-traces/commit/f084eab7564bb66fe274d04e604f1640e7daf798))
+
+
+### Bug Fixes
+
+* Fix peer dependencies ([#24](https://github.com/mathematic-inc/smapped-traces/issues/24)) ([2e82189](https://github.com/mathematic-inc/smapped-traces/commit/2e821890c3241d33849c75a38b8492464021dd78))
+* Migrate repository to mathematic-inc organization ([#6](https://github.com/mathematic-inc/smapped-traces/issues/6)) ([c8f9732](https://github.com/mathematic-inc/smapped-traces/commit/c8f97325bb7c038a3e0117085c056eade56e7067))
+
 ## [0.1.2](https://github.com/mathematic-inc/smapped-traces/compare/sqlite-v0.1.1...sqlite-v0.1.2) (2026-05-06)
 
 
