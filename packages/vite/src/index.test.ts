@@ -2,9 +2,11 @@ import { mkdtempSync, rmSync } from "node:fs";
 import { mkdir, readdir, writeFile } from "node:fs/promises";
 import { tmpdir } from "node:os";
 import { dirname, join } from "node:path";
+
 import type { SourceMapStore } from "smapped-traces/store";
 import type { Plugin, ResolvedConfig } from "vite";
 import { afterEach, beforeEach, describe, expect, it } from "vitest";
+
 import { collectSourceMaps, sourceMaps } from "./index.js";
 
 let tmpDir: string;
@@ -20,7 +22,7 @@ const writeMap = async (relative: string, map: object): Promise<void> => {
 
 const remainingFiles = async (): Promise<string[]> => {
   const files = await readdir(tmpDir, { recursive: true });
-  return files.filter((file) => file.endsWith(".map")).sort();
+  return files.filter((file) => file.endsWith(".map")).toSorted();
 };
 
 beforeEach(() => {
@@ -49,7 +51,7 @@ describe("sourceMaps plugin", () => {
       outDir?: string;
       plugins?: { name: string }[];
       ssr?: boolean;
-    } = {}
+    } = {},
   ): string[] => {
     const logs: string[] = [];
     (plugin.configResolved as (config: ResolvedConfig) => void)({
@@ -84,10 +86,7 @@ describe("sourceMaps plugin", () => {
     const plugin = sourceMaps();
     expect(typeof plugin.config).toBe("function");
     const config = (
-      plugin.config as (
-        config: unknown,
-        env: { command: string; mode: string }
-      ) => unknown
+      plugin.config as (config: unknown, env: { command: string; mode: string }) => unknown
     )({}, { command: "build", mode: "production" });
     expect(config).toEqual({
       build: {
@@ -120,9 +119,7 @@ describe("sourceMaps plugin", () => {
 
     expect([...entries.keys()]).toEqual(["id"]);
     expect(await remainingFiles()).toEqual([]);
-    expect(logs).toEqual([
-      "smapped-traces: stored 1 source maps, deleted 1 map files",
-    ]);
+    expect(logs).toEqual(["smapped-traces: stored 1 source maps, deleted 1 map files"]);
   });
 
   it("resolves a relative collect dir against the project root", async () => {
@@ -181,7 +178,7 @@ describe("collectSourceMaps", () => {
     });
 
     expect(result).toEqual({ deleted: 4, stored: 3 });
-    expect([...entries.keys()].sort()).toEqual(["id-cjs", "id-js", "id-mjs"]);
+    expect([...entries.keys()].toSorted()).toEqual(["id-cjs", "id-js", "id-mjs"]);
     expect(JSON.parse(entries.get("id-js") ?? "")).toEqual({
       debugId: "id-js",
       version: 3,
@@ -227,9 +224,9 @@ describe("collectSourceMaps", () => {
       collectSourceMaps({
         dir: tmpDir,
         store: () => store,
-      })
+      }),
     ).rejects.toThrow(
-      "source maps missing debugId (sourceMaps plugin not applied?):\n  client/broken.js.map\n  client/empty.js.map"
+      "source maps missing debugId (sourceMaps plugin not applied?):\n  client/broken.js.map\n  client/empty.js.map",
     );
 
     expect([...entries.keys()]).toEqual(["good-id"]);
@@ -245,9 +242,10 @@ describe("collectSourceMaps", () => {
       collectSourceMaps({
         dir: tmpDir,
         store: () => store,
-      })
+      }),
     ).rejects.toThrow(SyntaxError);
 
+    expect([...entries.keys()]).toEqual(["id"]);
     expect(closed).toBe(1);
   });
 

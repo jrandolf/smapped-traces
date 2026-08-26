@@ -2,13 +2,6 @@
   "name": "@smapped-traces/vite",
   "version": "0.1.1",
   "description": "Vite source map collection for smapped-traces",
-  "author": "Mathematic Inc",
-  "license": "Apache-2.0",
-  "repository": {
-    "type": "git",
-    "url": "https://github.com/mathematic-inc/smapped-traces.git",
-    "directory": "packages/vite"
-  },
   "keywords": [
     "vite",
     "sveltekit",
@@ -18,6 +11,13 @@
     "sourcemap",
     "error-tracking"
   ],
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/mathematic-inc/smapped-traces.git",
+    "directory": "packages/vite"
+  },
+  "license": "Apache-2.0",
+  "author": "Mathematic Inc",
   "type": "module",
   "exports": {
     ".": {
@@ -39,15 +39,15 @@
   "dependencies": {
     "fast-glob": "catalog:"
   },
-  "peerDependencies": {
-    "smapped-traces": "workspace:^",
-    "vite": "catalog:"
-  },
   "devDependencies": {
     "@types/node": "catalog:",
     "smapped-traces": "workspace:*",
     "typescript": "catalog:",
     "vite": "catalog:",
     "vitest": "catalog:"
+  },
+  "peerDependencies": {
+    "smapped-traces": "workspace:^",
+    "vite": "catalog:"
   }
 }

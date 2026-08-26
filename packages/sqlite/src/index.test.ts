@@ -1,8 +1,10 @@
 import { mkdtempSync, rmSync } from "node:fs";
 import { tmpdir } from "node:os";
 import { join } from "node:path";
+
 import type { SourceMapStore } from "smapped-traces/store";
 import { afterEach, beforeEach, describe, expect, it } from "vitest";
+
 import { createSqliteStore } from "./index.js";
 
 describe("SQLite Store", () => {
@@ -37,9 +39,7 @@ describe("SQLite Store", () => {
   });
 
   it("get from non-existent DB path returns null", async () => {
-    const badStore = createSqliteStore(
-      join(tmpDir, "nonexistent", "deep", "test.db")
-    );
+    const badStore = createSqliteStore(join(tmpDir, "nonexistent", "deep", "test.db"));
     const result = await badStore.get("anything");
     expect(result).toBeNull();
   });

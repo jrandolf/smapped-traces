@@ -1,0 +1,14 @@
+{
+  "ignorePatterns": [
+    "**/dist/**",
+    "**/gen/**",
+    "**/generated/**",
+    "**/package.json",
+    "**/*.md",
+    "**/*.toml"
+  ],
+  "semi": true,
+  "singleQuote": false,
+  "sortImports": true,
+  "sortPackageJson": false
+}

@@ -5,17 +5,10 @@
 
 import { toBinary } from "@bufbuild/protobuf";
 import { context, diag } from "@opentelemetry/api";
-import {
-  type ExportResult,
-  ExportResultCode,
-  suppressTracing,
-} from "@opentelemetry/core";
-import type {
-  ReadableSpan,
-  SpanExporter,
-  TimedEvent,
-} from "@opentelemetry/sdk-trace-base";
+import { type ExportResult, ExportResultCode, suppressTracing } from "@opentelemetry/core";
+import type { ReadableSpan, SpanExporter, TimedEvent } from "@opentelemetry/sdk-trace-base";
 import { ATTR_EXCEPTION_STACKTRACE } from "@opentelemetry/semantic-conventions";
+
 import { toTracesData } from "../convert.js";
 import { TracesDataSchema } from "../generated/opentelemetry/proto/trace/v1/trace_pb.js";
 import { extractDebugIdsFromStack } from "./debug-ids.js";
@@ -53,10 +46,7 @@ export class SourceMappedSpanExporter implements SpanExporter {
     this.#url = url;
   }
 
-  export(
-    spans: ReadableSpan[],
-    resultCallback: (result: ExportResult) => void
-  ): void {
+  export(spans: ReadableSpan[], resultCallback: (result: ExportResult) => void): void {
     if (this.#available === 0) {
       diag.debug("Exporter is disabled, returning success");
       resultCallback({ code: ExportResultCode.SUCCESS });
@@ -77,9 +67,8 @@ export class SourceMappedSpanExporter implements SpanExporter {
 
     (async () => {
       diag.debug("Exporter is using fetch");
-      const response = await context.with(
-        suppressTracing(context.active()),
-        () => fetch(this.#url, { method: "POST", body })
+      const response = await context.with(suppressTracing(context.active()), () =>
+        fetch(this.#url, { method: "POST", body }),
       );
       if (response.ok) {
         this.#available = response.status === 204 ? 0 : 2;

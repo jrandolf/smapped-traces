@@ -1,17 +1,11 @@
 import { fromBinary } from "@bufbuild/protobuf";
-import type {
-  ReadableSpan,
-  SpanExporter,
-  TimedEvent,
-} from "@opentelemetry/sdk-trace-base";
+import type { ReadableSpan, SpanExporter, TimedEvent } from "@opentelemetry/sdk-trace-base";
 import { ATTR_EXCEPTION_STACKTRACE } from "@opentelemetry/semantic-conventions";
+
 import { fromTracesData } from "../convert.js";
 import { TracesDataSchema } from "../generated/opentelemetry/proto/trace/v1/trace_pb.js";
 import type { SourceMapStore } from "../store/types.js";
-import {
-  createSourceMapResolver,
-  type SourceMapResolver,
-} from "./source-map-resolver.js";
+import { createSourceMapResolver, type SourceMapResolver } from "./source-map-resolver.js";
 
 /**
  * Options for creating a traces handler.
@@ -28,7 +22,7 @@ export interface TracesHandlerOptions {
  */
 async function resolveExceptionEvent(
   event: TimedEvent,
-  sourceMapResolver: SourceMapResolver
+  sourceMapResolver: SourceMapResolver,
 ): Promise<void> {
   if (event.name !== "exception") {
     return;
@@ -45,18 +39,13 @@ async function resolveExceptionEvent(
     return;
   }
 
-  const validDebugIds = debugIds.filter(
-    (id): id is string => typeof id === "string"
-  );
+  const validDebugIds = debugIds.filter((id): id is string => typeof id === "string");
   if (validDebugIds.length === 0) {
     return;
   }
 
   try {
-    const resolvedStack = await sourceMapResolver.resolveStackTrace(
-      stacktrace,
-      validDebugIds
-    );
+    const resolvedStack = await sourceMapResolver.resolveStackTrace(stacktrace, validDebugIds);
 
     const attrs = event.attributes as Record<string, unknown>;
     attrs[ATTR_EXCEPTION_STACKTRACE] = resolvedStack;
@@ -71,16 +60,14 @@ async function resolveExceptionEvent(
  */
 async function resolveExceptionStackTraces(
   spans: ReadableSpan[],
-  sourceMapResolver: SourceMapResolver
+  sourceMapResolver: SourceMapResolver,
 ): Promise<void> {
   await Promise.all(
     spans.map(async (span) => {
       const hasExceptionWithDebugIds = span.events.some(
         (event) =>
           event.name === "exception" &&
-          Array.isArray(
-            event.attributes?.[`${ATTR_EXCEPTION_STACKTRACE}.debug_ids`]
-          )
+          Array.isArray(event.attributes?.[`${ATTR_EXCEPTION_STACKTRACE}.debug_ids`]),
       );
 
       if (!hasExceptionWithDebugIds) {
@@ -88,11 +75,9 @@ async function resolveExceptionStackTraces(
       }
 
       await Promise.all(
-        span.events.map((event) =>
-          resolveExceptionEvent(event, sourceMapResolver)
-        )
+        span.events.map((event) => resolveExceptionEvent(event, sourceMapResolver)),
       );
-    })
+    }),
   );
 }
 

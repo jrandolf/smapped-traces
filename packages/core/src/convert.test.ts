@@ -12,6 +12,7 @@ import type { InstrumentationScope } from "@opentelemetry/core";
 import { resourceFromAttributes } from "@opentelemetry/resources";
 import type { ReadableSpan, TimedEvent } from "@opentelemetry/sdk-trace-base";
 import { describe, expect, it } from "vitest";
+
 import { fromTracesData, toTracesData } from "./convert.js";
 import { TracesDataSchema } from "./generated/opentelemetry/proto/trace/v1/trace_pb.js";
 
@@ -38,7 +39,7 @@ function createMockSpan(
     droppedAttributesCount: number;
     droppedEventsCount: number;
     droppedLinksCount: number;
-  }> = {}
+  }> = {},
 ): ReadableSpan {
   const traceId = overrides.traceId ?? "0af7651916cd43dd8448eb211c80319c";
   const spanId = overrides.spanId ?? "b7ad6b7169203331";
@@ -53,15 +54,12 @@ function createMockSpan(
       }
     : undefined;
 
-  const resource =
-    overrides.resource ??
-    resourceFromAttributes({ "service.name": "test-service" });
+  const resource = overrides.resource ?? resourceFromAttributes({ "service.name": "test-service" });
 
-  const instrumentationScope: InstrumentationScope =
-    overrides.instrumentationScope ?? {
-      name: "test-scope",
-      version: "1.0.0",
-    };
+  const instrumentationScope: InstrumentationScope = overrides.instrumentationScope ?? {
+    name: "test-scope",
+    version: "1.0.0",
+  };
 
   const startTime: HrTime = overrides.startTime ?? [1_700_000_000, 0];
   const endTime: HrTime = overrides.endTime ?? [1_700_000_001, 0];
@@ -70,10 +68,7 @@ function createMockSpan(
   const durationSec = endTime[0] - startTime[0];
   const durationNano = endTime[1] - startTime[1];
   const totalNano = durationSec * 1_000_000_000 + durationNano;
-  const duration: HrTime = [
-    Math.floor(totalNano / 1_000_000_000),
-    totalNano % 1_000_000_000,
-  ];
+  const duration: HrTime = [Math.floor(totalNano / 1_000_000_000), totalNano % 1_000_000_000];
 
   return {
     name: overrides.name ?? "test-span",
@@ -112,7 +107,7 @@ describe("Round-trip Conversion Fidelity", () => {
       kind: SpanKind.SERVER,
       traceId: "0af7651916cd43dd8448eb211c80319c",
       spanId: "b7ad6b7169203331",
-      parentSpanId: "00f067aa0ba902b7",
+      parentSpanId: "00f067aa0bc902b7",
       startTime: [1_700_000_000, 123_456_789],
       endTime: [1_700_000_002, 987_654_321],
       status: { code: SpanStatusCode.OK, message: "all good" },
@@ -151,7 +146,7 @@ describe("Round-trip Conversion Fidelity", () => {
     expect(out.kind).toBe(SpanKind.SERVER);
     expect(out.spanContext().traceId).toBe("0af7651916cd43dd8448eb211c80319c");
     expect(out.spanContext().spanId).toBe("b7ad6b7169203331");
-    expect(out.parentSpanContext?.spanId).toBe("00f067aa0ba902b7");
+    expect(out.parentSpanContext?.spanId).toBe("00f067aa0bc902b7");
     expect(out.startTime).toEqual([1_700_000_000, 123_456_789]);
     expect(out.endTime).toEqual([1_700_000_002, 987_654_321]);
     expect(out.status.code).toBe(SpanStatusCode.OK);
@@ -299,12 +294,7 @@ describe("Attribute Type Conversion", () => {
     // The OTel AttributeValue type allows (string | number | boolean | null | undefined)[]
     // The conversion filters out null/undefined
     const attrs = roundTripAttributes({
-      mixed: [
-        "a",
-        null as unknown as string,
-        "b",
-        undefined as unknown as string,
-      ],
+      mixed: ["a", null as unknown as string, "b", undefined as unknown as string],
     });
     expect(attrs.mixed).toEqual(["a", "b"]);
   });
@@ -470,7 +460,7 @@ describe("Event Conversion", () => {
     expect(event.attributes!["exception.type"]).toBe("Error");
     expect(event.attributes!["exception.message"]).toBe("something failed");
     expect(event.attributes!["exception.stacktrace"]).toBe(
-      "Error: something failed\n    at main()"
+      "Error: something failed\n    at main()",
     );
   });
 
@@ -571,12 +561,12 @@ describe("Link Conversion", () => {
 
 describe("Parent Span Context", () => {
   it("span with parentSpanContext round-trips (parentSpanId preserved)", () => {
-    const span = createMockSpan({ parentSpanId: "00f067aa0ba902b7" });
+    const span = createMockSpan({ parentSpanId: "00f067aa0bc902b7" });
     const tracesData = toTracesData([span]);
     const result = fromTracesData(tracesData);
 
     expect(result[0]!.parentSpanContext).toBeDefined();
-    expect(result[0]!.parentSpanContext!.spanId).toBe("00f067aa0ba902b7");
+    expect(result[0]!.parentSpanContext!.spanId).toBe("00f067aa0bc902b7");
   });
 
   it("span without parent has undefined parentSpanContext after round-trip", () => {

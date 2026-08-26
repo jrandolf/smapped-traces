@@ -39,10 +39,7 @@ export interface SourceMapOptions {
   store: (distDir: string) => SourceMapStore | Promise<SourceMapStore>;
 }
 
-/**
- * Regex pattern for Turbopack project prefix.
- */
-const TURBOPACK_PROJECT_PREFIX = /^turbopack:\/\/\/\[project\]\//;
+const TURBOPACK_PROJECT_PREFIX = "turbopack:///[project]/";
 
 /**
  * Source map with debug ID extension.
@@ -52,15 +49,15 @@ type SourceMapWithDebugId = (RawSourceMap | RawIndexMap) & { debugId: string };
 /**
  * Transforms source paths in a sources array in-place.
  */
-function transformSources(
-  sources: string[],
-  replaceTurbopackSourcePrefix: string
-): void {
-  for (let i = 0; i < sources.length; i++) {
-    sources[i] = sources[i].replace(TURBOPACK_PROJECT_PREFIX, "");
+function transformSources(sources: string[], replaceTurbopackSourcePrefix: string): void {
+  for (const [i, source] of sources.entries()) {
+    let transformed = source.startsWith(TURBOPACK_PROJECT_PREFIX)
+      ? source.slice(TURBOPACK_PROJECT_PREFIX.length)
+      : source;
     if (replaceTurbopackSourcePrefix !== "") {
-      sources[i] = new URL(sources[i], replaceTurbopackSourcePrefix).href;
+      transformed = new URL(transformed, replaceTurbopackSourcePrefix).href;
     }
+    sources[i] = transformed;
   }
 }
 
@@ -69,7 +66,7 @@ function transformSources(
  */
 function transformSourceMapPaths(
   sourceMap: SourceMapWithDebugId,
-  replaceTurbopackSourcePrefix: string
+  replaceTurbopackSourcePrefix: string,
 ): void {
   if ("sources" in sourceMap) {
     transformSources(sourceMap.sources, replaceTurbopackSourcePrefix);
@@ -81,10 +78,7 @@ function transformSourceMapPaths(
   }
 }
 
-export function withSourceMaps(
-  nextConfig: NextConfig,
-  options: SourceMapOptions
-): NextConfig {
+export function withSourceMaps(nextConfig: NextConfig, options: SourceMapOptions): NextConfig {
   nextConfig.serverExternalPackages ??= [];
   nextConfig.serverExternalPackages.push("source-map");
 
@@ -94,8 +88,7 @@ export function withSourceMaps(
   nextConfig.productionBrowserSourceMaps = true;
 
   nextConfig.compiler ??= {};
-  const runAfterProductionCompile =
-    nextConfig.compiler.runAfterProductionCompile;
+  const runAfterProductionCompile = nextConfig.compiler.runAfterProductionCompile;
   nextConfig.compiler.runAfterProductionCompile = async (args) => {
     const { join } = await import("node:path");
     const { readFile, rm } = await import("node:fs/promises");
@@ -104,9 +97,7 @@ export function withSourceMaps(
     const store = await options.store(args.distDir);
 
     const promises: Promise<void>[] = [];
-    for await (const mapFile of FastGlob.globStream(
-      join(args.distDir, "**", "*.{m,c,}js.map")
-    )) {
+    for await (const mapFile of FastGlob.globStream(join(args.distDir, "**", "*.{m,c,}js.map"))) {
       promises.push(
         readFile(mapFile, "utf8").then(async (content) => {
           try {
@@ -116,17 +107,14 @@ export function withSourceMaps(
             }
 
             if (options.replaceTurbopackSourcePrefix !== undefined) {
-              transformSourceMapPaths(
-                sourceMap,
-                options.replaceTurbopackSourcePrefix
-              );
+              transformSourceMapPaths(sourceMap, options.replaceTurbopackSourcePrefix);
             }
 
             await store.put(sourceMap.debugId, JSON.stringify(sourceMap));
           } finally {
             rm(mapFile);
           }
-        })
+        }),
       );
     }
     await Promise.allSettled(promises);

@@ -6,16 +6,20 @@
     "lib": ["ESNext", "DOM", "DOM.Iterable"],
     "module": "ESNext",
     "moduleResolution": "Bundler",
-    "resolveJsonModule": true,
-    "allowJs": true,
+    "allowArbitraryExtensions": true,
     "declaration": true,
     "declarationMap": true,
-    "sourceMap": true,
-    "isolatedModules": true,
     "esModuleInterop": true,
     "forceConsistentCasingInFileNames": true,
-    "strict": true,
+    "isolatedModules": true,
+    "noFallthroughCasesInSwitch": true,
+    "noImplicitOverride": true,
+    "noUncheckedIndexedAccess": true,
+    "noUncheckedSideEffectImports": true,
+    "resolveJsonModule": true,
     "skipLibCheck": true,
-    "strictNullChecks": true
+    "sourceMap": true,
+    "strict": true,
+    "verbatimModuleSyntax": true
   }
 }

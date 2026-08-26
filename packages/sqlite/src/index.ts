@@ -21,7 +21,7 @@ export function createSqliteStore(dbPath: string): SourceMapStore {
   function ensureTable(database: Database.Database): void {
     if (!tableCreated) {
       database.exec(
-        "CREATE TABLE IF NOT EXISTS sourcemaps (debugId TEXT PRIMARY KEY, content BLOB)"
+        "CREATE TABLE IF NOT EXISTS sourcemaps (debugId TEXT PRIMARY KEY, content BLOB)",
       );
       tableCreated = true;
     }
@@ -32,9 +32,7 @@ export function createSqliteStore(dbPath: string): SourceMapStore {
       try {
         const database = ensureDb();
         const row = database
-          .prepare(
-            "SELECT json(content) as content FROM sourcemaps WHERE debugId = ?"
-          )
+          .prepare("SELECT json(content) as content FROM sourcemaps WHERE debugId = ?")
           .get(debugId) as { content: string } | undefined;
         return row?.content ?? null;
       } catch {
@@ -46,9 +44,7 @@ export function createSqliteStore(dbPath: string): SourceMapStore {
       const database = ensureDb();
       ensureTable(database);
       database
-        .prepare(
-          "INSERT OR REPLACE INTO sourcemaps (debugId, content) VALUES (?, jsonb(?))"
-        )
+        .prepare("INSERT OR REPLACE INTO sourcemaps (debugId, content) VALUES (?, jsonb(?))")
         .run(debugId, content);
     },
 

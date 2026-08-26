@@ -2,13 +2,6 @@
   "name": "@smapped-traces/sqlite",
   "version": "0.1.2",
   "description": "SQLite source map store for smapped-traces",
-  "author": "Mathematic Inc",
-  "license": "Apache-2.0",
-  "repository": {
-    "type": "git",
-    "url": "https://github.com/mathematic-inc/smapped-traces.git",
-    "directory": "packages/sqlite"
-  },
   "keywords": [
     "sqlite",
     "opentelemetry",
@@ -17,6 +10,13 @@
     "sourcemap",
     "error-tracking"
   ],
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/mathematic-inc/smapped-traces.git",
+    "directory": "packages/sqlite"
+  },
+  "license": "Apache-2.0",
+  "author": "Mathematic Inc",
   "type": "module",
   "exports": {
     ".": {
@@ -35,10 +35,6 @@
     "test": "vitest run",
     "typecheck": "tsc -b --noEmit"
   },
-  "peerDependencies": {
-    "better-sqlite3": "catalog:",
-    "smapped-traces": "workspace:^"
-  },
   "devDependencies": {
     "@types/better-sqlite3": "catalog:",
     "@types/node": "catalog:",
@@ -46,5 +42,9 @@
     "smapped-traces": "workspace:*",
     "typescript": "catalog:",
     "vitest": "catalog:"
+  },
+  "peerDependencies": {
+    "better-sqlite3": "catalog:",
+    "smapped-traces": "workspace:^"
   }
 }
