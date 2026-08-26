@@ -3,13 +3,10 @@ import type { Attributes, HrTime, SpanKind } from "@opentelemetry/api";
 import { SpanStatusCode } from "@opentelemetry/api";
 import { ExportResultCode } from "@opentelemetry/core";
 import { resourceFromAttributes } from "@opentelemetry/resources";
-import type {
-  ReadableSpan,
-  SpanExporter,
-  TimedEvent,
-} from "@opentelemetry/sdk-trace-base";
+import type { ReadableSpan, SpanExporter, TimedEvent } from "@opentelemetry/sdk-trace-base";
 import { ATTR_EXCEPTION_STACKTRACE } from "@opentelemetry/semantic-conventions";
 import { beforeEach, describe, expect, it, vi } from "vitest";
+
 import { toTracesData } from "../convert.js";
 import { TracesDataSchema } from "../generated/opentelemetry/proto/trace/v1/trace_pb.js";
 import type { SourceMapStore } from "../store/types.js";
@@ -58,10 +55,7 @@ function createSpan(overrides: Partial<ReadableSpan> = {}): ReadableSpan {
  * Creates an exception TimedEvent with the given stacktrace and optional
  * debug IDs.
  */
-function createExceptionEvent(
-  stacktrace: string,
-  debugIds?: unknown[]
-): TimedEvent {
+function createExceptionEvent(stacktrace: string, debugIds?: unknown[]): TimedEvent {
   const attributes: Attributes = {
     [ATTR_EXCEPTION_STACKTRACE]: stacktrace,
   };
@@ -126,7 +120,7 @@ describe("traces handler", () => {
       expect(response.status).toBe(200);
       expect(exportedSpans).toHaveLength(1);
       expect(exportedSpans[0]).toHaveLength(1);
-      expect(exportedSpans[0][0].name).toBe("test-span");
+      expect(exportedSpans[0]![0]!.name).toBe("test-span");
     });
 
     it("forwards spans without resolution when no store is provided", async () => {
@@ -142,10 +136,7 @@ describe("traces handler", () => {
       const handler = createTracesHandler({ exporter });
       const span = createSpan({
         events: [
-          createExceptionEvent(
-            "Error: test\n    at http://example.com/app.js:1:1",
-            ["debug-id-1"]
-          ),
+          createExceptionEvent("Error: test\n    at http://example.com/app.js:1:1", ["debug-id-1"]),
         ],
       });
       const request = createProtobufRequest([span]);
@@ -154,10 +145,10 @@ describe("traces handler", () => {
 
       expect(response.status).toBe(200);
       // The stacktrace should be unchanged since there is no store / resolver
-      const exported = exportedSpans[0][0];
-      const event = exported.events[0];
+      const exported = exportedSpans[0]![0]!;
+      const event = exported.events[0]!;
       expect(event.attributes?.[ATTR_EXCEPTION_STACKTRACE]).toBe(
-        "Error: test\n    at http://example.com/app.js:1:1"
+        "Error: test\n    at http://example.com/app.js:1:1",
       );
     });
 
@@ -173,9 +164,7 @@ describe("traces handler", () => {
 
       const store: SourceMapStore = {
         get(debugId) {
-          return debugId === "debug-id-1"
-            ? JSON.stringify(simpleSourceMap)
-            : null;
+          return debugId === "debug-id-1" ? JSON.stringify(simpleSourceMap) : null;
         },
         put() {
           /* noop */
@@ -185,10 +174,7 @@ describe("traces handler", () => {
       const handler = createTracesHandler({ exporter, store });
       const span = createSpan({
         events: [
-          createExceptionEvent(
-            "Error: test\n    at http://example.com/app.js:1:1",
-            ["debug-id-1"]
-          ),
+          createExceptionEvent("Error: test\n    at http://example.com/app.js:1:1", ["debug-id-1"]),
         ],
       });
       const request = createProtobufRequest([span]);
@@ -197,8 +183,8 @@ describe("traces handler", () => {
 
       expect(response.status).toBe(200);
 
-      const exported = exportedSpans[0][0];
-      const event = exported.events[0];
+      const exported = exportedSpans[0]![0]!;
+      const event = exported.events[0]!;
       const resolved = event.attributes?.[ATTR_EXCEPTION_STACKTRACE] as string;
       expect(resolved).toContain("src/app.ts");
       expect(resolved).toContain("handleClick");
@@ -226,9 +212,7 @@ describe("traces handler", () => {
 
       store = {
         get(debugId) {
-          return debugId === "debug-id-1"
-            ? JSON.stringify(simpleSourceMap)
-            : null;
+          return debugId === "debug-id-1" ? JSON.stringify(simpleSourceMap) : null;
         },
         put() {
           /* noop */
@@ -240,16 +224,13 @@ describe("traces handler", () => {
       const handler = createTracesHandler({ exporter, store });
       const span = createSpan({
         events: [
-          createExceptionEvent(
-            "Error: test\n    at http://example.com/app.js:1:1",
-            ["debug-id-1"]
-          ),
+          createExceptionEvent("Error: test\n    at http://example.com/app.js:1:1", ["debug-id-1"]),
         ],
       });
 
       await handler(createProtobufRequest([span]));
 
-      const event = exportedSpans[0][0].events[0];
+      const event = exportedSpans[0]![0]!.events[0]!;
       const resolved = event.attributes?.[ATTR_EXCEPTION_STACKTRACE] as string;
       expect(resolved).toContain("src/app.ts");
     });
@@ -263,10 +244,8 @@ describe("traces handler", () => {
 
       await handler(createProtobufRequest([span]));
 
-      const event = exportedSpans[0][0].events[0];
-      expect(event.attributes?.[`${ATTR_EXCEPTION_STACKTRACE}.original`]).toBe(
-        originalStack
-      );
+      const event = exportedSpans[0]![0]!.events[0]!;
+      expect(event.attributes?.[`${ATTR_EXCEPTION_STACKTRACE}.original`]).toBe(originalStack);
     });
 
     it("does not modify span when exception has no debug_ids", async () => {
@@ -278,11 +257,9 @@ describe("traces handler", () => {
 
       await handler(createProtobufRequest([span]));
 
-      const event = exportedSpans[0][0].events[0];
+      const event = exportedSpans[0]![0]!.events[0]!;
       expect(event.attributes?.[ATTR_EXCEPTION_STACKTRACE]).toBe(originalStack);
-      expect(
-        event.attributes?.[`${ATTR_EXCEPTION_STACKTRACE}.original`]
-      ).toBeUndefined();
+      expect(event.attributes?.[`${ATTR_EXCEPTION_STACKTRACE}.original`]).toBeUndefined();
     });
 
     it("does not modify span when stacktrace is not a string", async () => {
@@ -301,10 +278,8 @@ describe("traces handler", () => {
 
       // After round-trip through protobuf, the numeric value is converted,
       // but the handler should not attempt resolution.
-      const exportedEvent = exportedSpans[0][0].events[0];
-      expect(
-        exportedEvent.attributes?.[`${ATTR_EXCEPTION_STACKTRACE}.original`]
-      ).toBeUndefined();
+      const exportedEvent = exportedSpans[0]![0]!.events[0]!;
+      expect(exportedEvent.attributes?.[`${ATTR_EXCEPTION_STACKTRACE}.original`]).toBeUndefined();
     });
 
     it("does not modify span when debug_ids is an empty array", async () => {
@@ -316,11 +291,9 @@ describe("traces handler", () => {
 
       await handler(createProtobufRequest([span]));
 
-      const event = exportedSpans[0][0].events[0];
+      const event = exportedSpans[0]![0]!.events[0]!;
       expect(event.attributes?.[ATTR_EXCEPTION_STACKTRACE]).toBe(originalStack);
-      expect(
-        event.attributes?.[`${ATTR_EXCEPTION_STACKTRACE}.original`]
-      ).toBeUndefined();
+      expect(event.attributes?.[`${ATTR_EXCEPTION_STACKTRACE}.original`]).toBeUndefined();
     });
 
     it("passes through span with no exception events unchanged", async () => {
@@ -337,14 +310,14 @@ describe("traces handler", () => {
 
       await handler(createProtobufRequest([span]));
 
-      const exportedEvent = exportedSpans[0][0].events[0];
+      const exportedEvent = exportedSpans[0]![0]!.events[0]!;
       expect(exportedEvent.name).toBe("some-event");
       expect(exportedEvent.attributes?.key).toBe("value");
     });
 
     it("filters debug_ids to only strings before resolving", async () => {
       const getSpy = vi.fn((debugId: string) =>
-        debugId === "valid-id" ? JSON.stringify(simpleSourceMap) : null
+        debugId === "valid-id" ? JSON.stringify(simpleSourceMap) : null,
       );
       const spyStore: SourceMapStore = {
         get: getSpy,
@@ -356,10 +329,13 @@ describe("traces handler", () => {
       const handler = createTracesHandler({ exporter, store: spyStore });
       const span = createSpan({
         events: [
-          createExceptionEvent(
-            "Error: test\n    at http://example.com/app.js:1:1",
-            [42, null, "valid-id", undefined, true]
-          ),
+          createExceptionEvent("Error: test\n    at http://example.com/app.js:1:1", [
+            42,
+            null,
+            "valid-id",
+            undefined,
+            true,
+          ]),
         ],
       });
 
@@ -394,9 +370,7 @@ describe("traces handler", () => {
 
       store = {
         get(debugId) {
-          return debugId === "debug-id-1"
-            ? JSON.stringify(simpleSourceMap)
-            : null;
+          return debugId === "debug-id-1" ? JSON.stringify(simpleSourceMap) : null;
         },
         put() {
           /* noop */
@@ -410,10 +384,7 @@ describe("traces handler", () => {
       const spanWithException = createSpan({
         name: "span-with-exception",
         events: [
-          createExceptionEvent(
-            "Error: fail\n    at http://example.com/app.js:1:1",
-            ["debug-id-1"]
-          ),
+          createExceptionEvent("Error: fail\n    at http://example.com/app.js:1:1", ["debug-id-1"]),
         ],
       });
       const spanWithoutException = createSpan({
@@ -422,11 +393,7 @@ describe("traces handler", () => {
       });
       const spanWithExceptionNoDebugIds = createSpan({
         name: "span-exception-no-debug",
-        events: [
-          createExceptionEvent(
-            "Error: other\n    at http://example.com/other.js:5:10"
-          ),
-        ],
+        events: [createExceptionEvent("Error: other\n    at http://example.com/other.js:5:10")],
       });
 
       await handler(
@@ -434,29 +401,25 @@ describe("traces handler", () => {
           spanWithException,
           spanWithoutException,
           spanWithExceptionNoDebugIds,
-        ])
+        ]),
       );
 
       expect(exportedSpans[0]).toHaveLength(3);
 
       // First span should be resolved
-      const resolvedEvent = exportedSpans[0][0].events[0];
-      const resolvedStack = resolvedEvent.attributes?.[
-        ATTR_EXCEPTION_STACKTRACE
-      ] as string;
+      const resolvedEvent = exportedSpans[0]![0]!.events[0]!;
+      const resolvedStack = resolvedEvent.attributes?.[ATTR_EXCEPTION_STACKTRACE] as string;
       expect(resolvedStack).toContain("src/app.ts");
 
       // Second span has no events at all
-      expect(exportedSpans[0][1].events).toHaveLength(0);
+      expect(exportedSpans[0]![1]!.events).toHaveLength(0);
 
       // Third span should be untouched
-      const untouchedEvent = exportedSpans[0][2].events[0];
+      const untouchedEvent = exportedSpans[0]![2]!.events[0]!;
       expect(untouchedEvent.attributes?.[ATTR_EXCEPTION_STACKTRACE]).toBe(
-        "Error: other\n    at http://example.com/other.js:5:10"
+        "Error: other\n    at http://example.com/other.js:5:10",
       );
-      expect(
-        untouchedEvent.attributes?.[`${ATTR_EXCEPTION_STACKTRACE}.original`]
-      ).toBeUndefined();
+      expect(untouchedEvent.attributes?.[`${ATTR_EXCEPTION_STACKTRACE}.original`]).toBeUndefined();
     });
 
     it("resolves multiple exception events in the same span independently", async () => {
@@ -464,30 +427,24 @@ describe("traces handler", () => {
 
       const span = createSpan({
         events: [
-          createExceptionEvent(
-            "Error: first\n    at http://example.com/app.js:1:1",
-            ["debug-id-1"]
-          ),
-          createExceptionEvent(
-            "Error: second\n    at http://example.com/app.js:1:1",
-            ["debug-id-1"]
-          ),
+          createExceptionEvent("Error: first\n    at http://example.com/app.js:1:1", [
+            "debug-id-1",
+          ]),
+          createExceptionEvent("Error: second\n    at http://example.com/app.js:1:1", [
+            "debug-id-1",
+          ]),
         ],
       });
 
       await handler(createProtobufRequest([span]));
 
-      const events = exportedSpans[0][0].events;
+      const events = exportedSpans[0]![0]!.events;
       expect(events).toHaveLength(2);
 
       for (const event of events) {
-        const resolved = event.attributes?.[
-          ATTR_EXCEPTION_STACKTRACE
-        ] as string;
+        const resolved = event.attributes?.[ATTR_EXCEPTION_STACKTRACE] as string;
         expect(resolved).toContain("src/app.ts");
-        expect(
-          event.attributes?.[`${ATTR_EXCEPTION_STACKTRACE}.original`]
-        ).toBeDefined();
+        expect(event.attributes?.[`${ATTR_EXCEPTION_STACKTRACE}.original`]).toBeDefined();
       }
     });
 
@@ -501,10 +458,7 @@ describe("traces handler", () => {
             time: [0, 0] as HrTime,
             attributes: { message: "hello" },
           },
-          createExceptionEvent(
-            "Error: boom\n    at http://example.com/app.js:1:1",
-            ["debug-id-1"]
-          ),
+          createExceptionEvent("Error: boom\n    at http://example.com/app.js:1:1", ["debug-id-1"]),
           {
             name: "custom-event",
             time: [0, 0] as HrTime,
@@ -515,22 +469,20 @@ describe("traces handler", () => {
 
       await handler(createProtobufRequest([span]));
 
-      const events = exportedSpans[0][0].events;
+      const events = exportedSpans[0]![0]!.events;
       expect(events).toHaveLength(3);
 
       // Log event is untouched
-      expect(events[0].name).toBe("log");
-      expect(events[0].attributes?.message).toBe("hello");
+      expect(events[0]!.name).toBe("log");
+      expect(events[0]!.attributes?.message).toBe("hello");
 
       // Exception event is resolved
-      const resolved = events[1].attributes?.[
-        ATTR_EXCEPTION_STACKTRACE
-      ] as string;
+      const resolved = events[1]!.attributes?.[ATTR_EXCEPTION_STACKTRACE] as string;
       expect(resolved).toContain("src/app.ts");
 
       // Custom event is untouched
-      expect(events[2].name).toBe("custom-event");
-      expect(events[2].attributes?.info).toBe("data");
+      expect(events[2]!.name).toBe("custom-event");
+      expect(events[2]!.attributes?.info).toBe("data");
     });
   });
 
@@ -551,9 +503,7 @@ describe("traces handler", () => {
       const handler = createTracesHandler({ exporter });
       const span = createSpan();
 
-      await expect(handler(createProtobufRequest([span]))).rejects.toThrow(
-        "export failed"
-      );
+      await expect(handler(createProtobufRequest([span]))).rejects.toThrow("export failed");
     });
 
     it("preserves original stacktrace when store returns invalid JSON", async () => {
@@ -583,15 +533,13 @@ describe("traces handler", () => {
 
       await handler(createProtobufRequest([span]));
 
-      const event = exportedSpans[0][0].events[0];
+      const event = exportedSpans[0]![0]!.events[0]!;
       // The resolver's internal loadSourceMaps silently skips invalid JSON
       // (no consumer is loaded), so resolveStackTrace returns the original
       // stack unchanged. The handler then writes both the "resolved" value
       // (identical to the original) and the `.original` attribute.
       expect(event.attributes?.[ATTR_EXCEPTION_STACKTRACE]).toBe(originalStack);
-      expect(event.attributes?.[`${ATTR_EXCEPTION_STACKTRACE}.original`]).toBe(
-        originalStack
-      );
+      expect(event.attributes?.[`${ATTR_EXCEPTION_STACKTRACE}.original`]).toBe(originalStack);
     });
 
     it("does not prevent export when resolution fails", async () => {
@@ -624,7 +572,7 @@ describe("traces handler", () => {
       expect(response.status).toBe(200);
       expect(exportedSpans).toHaveLength(1);
       // The original stacktrace is preserved on failure
-      const event = exportedSpans[0][0].events[0];
+      const event = exportedSpans[0]![0]!.events[0]!;
       expect(event.attributes?.[ATTR_EXCEPTION_STACKTRACE]).toBe(originalStack);
     });
   });
@@ -656,9 +604,7 @@ describe("traces handler", () => {
       const store: SourceMapStore = {
         get(debugId) {
           storeGetCalls++;
-          return debugId === "debug-id-1"
-            ? JSON.stringify(simpleSourceMap)
-            : null;
+          return debugId === "debug-id-1" ? JSON.stringify(simpleSourceMap) : null;
         },
         put() {
           /* noop */
@@ -679,10 +625,7 @@ describe("traces handler", () => {
       // First request triggers resolver creation
       const span = createSpan({
         events: [
-          createExceptionEvent(
-            "Error: test\n    at http://example.com/app.js:1:1",
-            ["debug-id-1"]
-          ),
+          createExceptionEvent("Error: test\n    at http://example.com/app.js:1:1", ["debug-id-1"]),
         ],
       });
       await handler(createProtobufRequest([span]));
@@ -695,9 +638,7 @@ describe("traces handler", () => {
       const store: SourceMapStore = {
         get(debugId) {
           storeGetCalls++;
-          return debugId === "debug-id-1"
-            ? JSON.stringify(simpleSourceMap)
-            : null;
+          return debugId === "debug-id-1" ? JSON.stringify(simpleSourceMap) : null;
         },
         put() {
           /* noop */
@@ -718,10 +659,9 @@ describe("traces handler", () => {
       const makeRequest = () => {
         const span = createSpan({
           events: [
-            createExceptionEvent(
-              "Error: test\n    at http://example.com/app.js:1:1",
-              ["debug-id-1"]
-            ),
+            createExceptionEvent("Error: test\n    at http://example.com/app.js:1:1", [
+              "debug-id-1",
+            ]),
           ],
         });
         return handler(createProtobufRequest([span]));
@@ -743,10 +683,8 @@ describe("traces handler", () => {
 
       // Both should have resolved stacktraces
       for (const spans of exportedSpans) {
-        const event = spans[0].events[0];
-        const resolved = event.attributes?.[
-          ATTR_EXCEPTION_STACKTRACE
-        ] as string;
+        const event = spans[0]!.events[0]!;
+        const resolved = event.attributes?.[ATTR_EXCEPTION_STACKTRACE] as string;
         expect(resolved).toContain("src/app.ts");
       }
     });

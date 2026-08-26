@@ -1,4 +1,5 @@
 import { afterEach, beforeEach, describe, expect, it } from "vitest";
+
 import type { SourceMapStore } from "../store/types.js";
 import {
   createSourceMapResolver,
@@ -6,7 +7,7 @@ import {
   type SourceMapResolver,
 } from "./source-map-resolver.js";
 
-const HANDLE_CLICK_PATTERN = /at handleClick \(src\/app\.ts:1:1\)/;
+const HANDLE_CLICK_PATTERN = /at handleClick \(src\/app\.ts:1:1\)/v;
 
 function createMemoryStore(): SourceMapStore & {
   insert(debugId: string, map: object): void;
@@ -36,7 +37,7 @@ function createIndexSourceMap(
       names: string[];
       mappings: string;
     };
-  }>
+  }>,
 ) {
   return {
     version: 3,
@@ -47,9 +48,7 @@ function createIndexSourceMap(
         sources: section.map.sources,
         names: section.map.names,
         mappings: section.map.mappings,
-        sourcesContent: section.map.sources.map(
-          (s) => `// Source content for ${s}`
-        ),
+        sourcesContent: section.map.sources.map((s) => `// Source content for ${s}`),
       },
     })),
   };
@@ -58,11 +57,7 @@ function createIndexSourceMap(
 /**
  * Creates a simple source map (non-index).
  */
-function createSimpleSourceMap(options: {
-  sources: string[];
-  names: string[];
-  mappings: string;
-}) {
+function createSimpleSourceMap(options: { sources: string[]; names: string[]; mappings: string }) {
   return {
     version: 3,
     sources: options.sources,
@@ -100,7 +95,7 @@ describe("source-map-resolver", () => {
               mappings: "AAAAA",
             },
           },
-        ])
+        ]),
       );
 
       resolver = createSourceMapResolver({ store });
@@ -128,7 +123,7 @@ describe("source-map-resolver", () => {
               mappings: "AAKAA",
             },
           },
-        ])
+        ]),
       );
 
       resolver = createSourceMapResolver({ store });
@@ -164,7 +159,7 @@ describe("source-map-resolver", () => {
               mappings: "AAAA",
             },
           },
-        ])
+        ]),
       );
 
       resolver = createSourceMapResolver({ store });
@@ -191,7 +186,7 @@ describe("source-map-resolver", () => {
               mappings: "AAAA;ACAA",
             },
           },
-        ])
+        ]),
       );
 
       resolver = createSourceMapResolver({ store });
@@ -210,9 +205,7 @@ describe("source-map-resolver", () => {
       const stackTrace = `Error: No source map
     at http://localhost:3000/_next/static/chunks/unknown.js:1:1`;
 
-      const resolved = await resolver.resolveStackTrace(stackTrace, [
-        "non-existent-id",
-      ]);
+      const resolved = await resolver.resolveStackTrace(stackTrace, ["non-existent-id"]);
 
       expect(resolved).toBe(stackTrace);
     });
@@ -242,7 +235,7 @@ describe("source-map-resolver", () => {
               mappings: "AAAA",
             },
           },
-        ])
+        ]),
       );
 
       resolver = createSourceMapResolver({ store, maxCacheSize: 10 });
@@ -275,28 +268,22 @@ describe("source-map-resolver", () => {
             offset: { line: 150, column: 0 },
             map: { sources: ["src/section3.ts"], names: [], mappings: "AAAA" },
           },
-        ])
+        ]),
       );
 
       resolver = createSourceMapResolver({ store });
 
       const stack1 =
         "Error: Section 1\n    at http://localhost:3000/_next/static/chunks/app.js:1:1";
-      expect(await resolver.resolveStackTrace(stack1, [debugId])).toContain(
-        "src/section1.ts"
-      );
+      expect(await resolver.resolveStackTrace(stack1, [debugId])).toContain("src/section1.ts");
 
       const stack2 =
         "Error: Section 2\n    at http://localhost:3000/_next/static/chunks/app.js:51:1";
-      expect(await resolver.resolveStackTrace(stack2, [debugId])).toContain(
-        "src/section2.ts"
-      );
+      expect(await resolver.resolveStackTrace(stack2, [debugId])).toContain("src/section2.ts");
 
       const stack3 =
         "Error: Section 3\n    at http://localhost:3000/_next/static/chunks/app.js:151:1";
-      expect(await resolver.resolveStackTrace(stack3, [debugId])).toContain(
-        "src/section3.ts"
-      );
+      expect(await resolver.resolveStackTrace(stack3, [debugId])).toContain("src/section3.ts");
     });
 
     it("handles column offsets in index map sections", async () => {
@@ -313,7 +300,7 @@ describe("source-map-resolver", () => {
               mappings: "AAAA",
             },
           },
-        ])
+        ]),
       );
 
       resolver = createSourceMapResolver({ store });
@@ -365,9 +352,7 @@ describe("source-map-resolver", () => {
 
       const formatted = formatStackTrace(original, frames, resolved);
 
-      expect(formatted).toContain(
-        "TypeError: Cannot read property 'foo' of undefined"
-      );
+      expect(formatted).toContain("TypeError: Cannot read property 'foo' of undefined");
       expect(formatted).toContain("src/original.ts");
       expect(formatted).toContain("originalFunction");
     });
@@ -416,7 +401,7 @@ describe("source-map-resolver", () => {
           sources: ["src/chunk1.ts"],
           names: ["chunk1Func"],
           mappings: "AAAA",
-        })
+        }),
       );
       store.insert(
         debugId2,
@@ -424,7 +409,7 @@ describe("source-map-resolver", () => {
           sources: ["src/chunk2.ts"],
           names: ["chunk2Func"],
           mappings: "AAgGA",
-        })
+        }),
       );
 
       resolver = createSourceMapResolver({ store });
@@ -432,10 +417,7 @@ describe("source-map-resolver", () => {
       const stackTrace = `Error: Multi-chunk error
     at http://localhost:3000/_next/static/chunks/chunk1.js:1:1`;
 
-      const resolved = await resolver.resolveStackTrace(stackTrace, [
-        debugId1,
-        debugId2,
-      ]);
+      const resolved = await resolver.resolveStackTrace(stackTrace, [debugId1, debugId2]);
 
       expect(resolved).toContain("src/chunk1.ts");
     });
@@ -452,7 +434,7 @@ describe("source-map-resolver", () => {
             sources: [`src/file${i}.ts`],
             names: [],
             mappings: "AAAA",
-          })
+          }),
         );
       }
 
@@ -463,9 +445,7 @@ describe("source-map-resolver", () => {
       await resolver.resolveStackTrace(stackTrace, ["debug-id-2"]);
       await resolver.resolveStackTrace(stackTrace, ["debug-id-3"]);
 
-      const resolved = await resolver.resolveStackTrace(stackTrace, [
-        "debug-id-1",
-      ]);
+      const resolved = await resolver.resolveStackTrace(stackTrace, ["debug-id-1"]);
 
       expect(resolved).toContain("src/file1.ts");
     });
@@ -480,9 +460,7 @@ describe("source-map-resolver", () => {
       const stackTrace = `Error: Invalid map test
     at http://localhost:3000/_next/static/chunks/app.js:1:1`;
 
-      const resolved = await resolver.resolveStackTrace(stackTrace, [
-        "invalid-map",
-      ]);
+      const resolved = await resolver.resolveStackTrace(stackTrace, ["invalid-map"]);
 
       expect(resolved).toBe(stackTrace);
     });
@@ -501,9 +479,7 @@ describe("source-map-resolver", () => {
       const stackTrace = `Error: DB error test
     at http://localhost:3000/_next/static/chunks/app.js:1:1`;
 
-      const resolved = await resolver.resolveStackTrace(stackTrace, [
-        "some-id",
-      ]);
+      const resolved = await resolver.resolveStackTrace(stackTrace, ["some-id"]);
 
       expect(resolved).toBe(stackTrace);
     });

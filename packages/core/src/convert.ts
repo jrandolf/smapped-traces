@@ -18,6 +18,7 @@ import type { InstrumentationScope } from "@opentelemetry/core";
 import type { Resource } from "@opentelemetry/resources";
 import { resourceFromAttributes } from "@opentelemetry/resources";
 import type { ReadableSpan, TimedEvent } from "@opentelemetry/sdk-trace-base";
+
 import {
   type AnyValue,
   AnyValueSchema,
@@ -129,7 +130,7 @@ function toKeyValues(attributes: Attributes | undefined): KeyValue[] {
         create(KeyValueSchema, {
           key,
           value: toAnyValue(value),
-        })
+        }),
       );
     }
   }
@@ -149,9 +150,7 @@ function toProtoResource(resource: Resource): ProtoResource {
 /**
  * Convert SDK InstrumentationScope to protobuf InstrumentationScope.
  */
-function toProtoInstrumentationScope(
-  scope: InstrumentationScope
-): ProtoInstrumentationScope {
+function toProtoInstrumentationScope(scope: InstrumentationScope): ProtoInstrumentationScope {
   return create(InstrumentationScopeSchema, {
     name: scope.name,
     version: scope.version ?? "",
@@ -247,9 +246,7 @@ function toProtoSpan(span: ReadableSpan): Span {
     traceId: hexToBytes(spanContext.traceId),
     spanId: hexToBytes(spanContext.spanId),
     traceState: spanContext.traceState?.serialize() ?? "",
-    parentSpanId: parentSpanContext
-      ? hexToBytes(parentSpanContext.spanId)
-      : new Uint8Array(),
+    parentSpanId: parentSpanContext ? hexToBytes(parentSpanContext.spanId) : new Uint8Array(),
     flags: spanContext.traceFlags,
     name: span.name,
     kind: toProtoSpanKind(span.kind),
@@ -269,12 +266,9 @@ function toProtoSpan(span: ReadableSpan): Span {
  * Group spans by resource and instrumentation scope.
  */
 function groupSpansByResourceAndScope(
-  spans: ReadableSpan[]
+  spans: ReadableSpan[],
 ): Map<Resource, Map<InstrumentationScope, ReadableSpan[]>> {
-  const resourceMap = new Map<
-    Resource,
-    Map<InstrumentationScope, ReadableSpan[]>
-  >();
+  const resourceMap = new Map<Resource, Map<InstrumentationScope, ReadableSpan[]>>();
 
   for (const span of spans) {
     let scopeMap = resourceMap.get(span.resource);
@@ -311,7 +305,7 @@ export function toTracesData(spans: ReadableSpan[]): TracesData {
           scope: toProtoInstrumentationScope(scope),
           spans: spanList.map(toProtoSpan),
           schemaUrl: scope.schemaUrl ?? "",
-        })
+        }),
       );
     }
 
@@ -320,7 +314,7 @@ export function toTracesData(spans: ReadableSpan[]): TracesData {
         resource: toProtoResource(resource),
         scopeSpans,
         schemaUrl: resource.schemaUrl ?? "",
-      })
+      }),
     );
   }
 
@@ -354,9 +348,7 @@ function bytesToHex(bytes: Uint8Array): string {
 /**
  * Convert protobuf AnyValue to SDK AttributeValue.
  */
-function fromAnyValue(
-  anyValue: AnyValue | undefined
-): AttributeValue | undefined {
+function fromAnyValue(anyValue: AnyValue | undefined): AttributeValue | undefined {
   if (!anyValue?.value) {
     return;
   }
@@ -415,7 +407,7 @@ function fromProtoResource(protoResource: ProtoResource | undefined): Resource {
  * Convert protobuf InstrumentationScope to SDK InstrumentationScope.
  */
 function fromProtoInstrumentationScope(
-  scope: ProtoInstrumentationScope | undefined
+  scope: ProtoInstrumentationScope | undefined,
 ): InstrumentationScope {
   return {
     name: scope?.name ?? "",
@@ -502,12 +494,11 @@ function fromProtoSpanLink(link: Span_Link): Link {
 function fromProtoSpan(
   span: Span,
   resource: Resource,
-  instrumentationScope: InstrumentationScope
+  instrumentationScope: InstrumentationScope,
 ): ReadableSpan {
   const traceId = bytesToHex(span.traceId);
   const spanId = bytesToHex(span.spanId);
-  const parentSpanId =
-    span.parentSpanId.length > 0 ? bytesToHex(span.parentSpanId) : undefined;
+  const parentSpanId = span.parentSpanId.length > 0 ? bytesToHex(span.parentSpanId) : undefined;
 
   const startTime = nanosToHrTime(span.startTimeUnixNano);
   const endTime = nanosToHrTime(span.endTimeUnixNano);
@@ -559,9 +550,7 @@ export function fromTracesData(tracesData: TracesData): ReadableSpan[] {
     const resource = fromProtoResource(resourceSpans.resource);
 
     for (const scopeSpans of resourceSpans.scopeSpans) {
-      const instrumentationScope = fromProtoInstrumentationScope(
-        scopeSpans.scope
-      );
+      const instrumentationScope = fromProtoInstrumentationScope(scopeSpans.scope);
 
       for (const span of scopeSpans.spans) {
         spans.push(fromProtoSpan(span, resource, instrumentationScope));

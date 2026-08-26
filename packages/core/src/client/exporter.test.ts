@@ -5,6 +5,7 @@ import { resourceFromAttributes } from "@opentelemetry/resources";
 import type { ReadableSpan } from "@opentelemetry/sdk-trace-base";
 import { ATTR_EXCEPTION_STACKTRACE } from "@opentelemetry/semantic-conventions";
 import { afterEach, beforeEach, describe, expect, it, vi } from "vitest";
+
 import { TracesDataSchema } from "../generated/opentelemetry/proto/trace/v1/trace_pb.js";
 import { resetDebugIdCache } from "./debug-ids.js";
 import { SourceMappedSpanExporter } from "./exporter.js";
@@ -55,7 +56,7 @@ function createExceptionSpan(stacktrace: string): ReadableSpan {
 
 function exportAsync(
   exporter: SourceMappedSpanExporter,
-  spans: ReadableSpan[]
+  spans: ReadableSpan[],
 ): Promise<ExportResult> {
   return new Promise((resolve) => {
     exporter.export(spans, resolve);
@@ -336,9 +337,7 @@ describe("SourceMappedSpanExporter", () => {
 
       // Verify the event was enriched
       const event = span.events[0]!;
-      expect(
-        event.attributes![`${ATTR_EXCEPTION_STACKTRACE}.debug_ids`]
-      ).toEqual([DEBUG_ID]);
+      expect(event.attributes![`${ATTR_EXCEPTION_STACKTRACE}.debug_ids`]).toEqual([DEBUG_ID]);
     });
 
     it("exception event with stacktrace matching __DEBUG_IDS__ gets debug_ids attribute added", async () => {
@@ -360,9 +359,7 @@ describe("SourceMappedSpanExporter", () => {
       await exportAsync(exporter, [span]);
 
       const event = span.events[0]!;
-      expect(
-        event.attributes![`${ATTR_EXCEPTION_STACKTRACE}.debug_ids`]
-      ).toEqual([DEBUG_ID]);
+      expect(event.attributes![`${ATTR_EXCEPTION_STACKTRACE}.debug_ids`]).toEqual([DEBUG_ID]);
     });
 
     it("non-exception events are not enriched", async () => {
@@ -393,9 +390,7 @@ describe("SourceMappedSpanExporter", () => {
       await exportAsync(exporter, [span]);
 
       const event = span.events[0]!;
-      expect(
-        event.attributes![`${ATTR_EXCEPTION_STACKTRACE}.debug_ids`]
-      ).toBeUndefined();
+      expect(event.attributes![`${ATTR_EXCEPTION_STACKTRACE}.debug_ids`]).toBeUndefined();
     });
 
     it("exception event without stacktrace is not enriched", async () => {
@@ -424,9 +419,7 @@ describe("SourceMappedSpanExporter", () => {
       await exportAsync(exporter, [span]);
 
       const event = span.events[0]!;
-      expect(
-        event.attributes![`${ATTR_EXCEPTION_STACKTRACE}.debug_ids`]
-      ).toBeUndefined();
+      expect(event.attributes![`${ATTR_EXCEPTION_STACKTRACE}.debug_ids`]).toBeUndefined();
     });
 
     it("exception event with non-string stacktrace is not enriched", async () => {
@@ -457,9 +450,7 @@ describe("SourceMappedSpanExporter", () => {
       await exportAsync(exporter, [span]);
 
       const event = span.events[0]!;
-      expect(
-        event.attributes![`${ATTR_EXCEPTION_STACKTRACE}.debug_ids`]
-      ).toBeUndefined();
+      expect(event.attributes![`${ATTR_EXCEPTION_STACKTRACE}.debug_ids`]).toBeUndefined();
     });
 
     it("span with no events is not enriched", async () => {
@@ -499,15 +490,9 @@ describe("SourceMappedSpanExporter", () => {
       });
       vi.stubGlobal("fetch", mockFetch);
 
-      const stacktrace1 = [
-        "Error: first error",
-        `    at foo (${CHUNK_URL}:10:15)`,
-      ].join("\n");
+      const stacktrace1 = ["Error: first error", `    at foo (${CHUNK_URL}:10:15)`].join("\n");
 
-      const stacktrace2 = [
-        "Error: second error",
-        `    at bar (${CHUNK_URL_2}:20:30)`,
-      ].join("\n");
+      const stacktrace2 = ["Error: second error", `    at bar (${CHUNK_URL_2}:20:30)`].join("\n");
 
       const span1 = createExceptionSpan(stacktrace1);
       const span2 = createExceptionSpan(stacktrace2);
@@ -515,12 +500,12 @@ describe("SourceMappedSpanExporter", () => {
       const exporter = new SourceMappedSpanExporter(TEST_URL);
       await exportAsync(exporter, [span1, span2]);
 
-      expect(
-        span1.events[0]!.attributes![`${ATTR_EXCEPTION_STACKTRACE}.debug_ids`]
-      ).toEqual([DEBUG_ID]);
-      expect(
-        span2.events[0]!.attributes![`${ATTR_EXCEPTION_STACKTRACE}.debug_ids`]
-      ).toEqual([DEBUG_ID_2]);
+      expect(span1.events[0]!.attributes![`${ATTR_EXCEPTION_STACKTRACE}.debug_ids`]).toEqual([
+        DEBUG_ID,
+      ]);
+      expect(span2.events[0]!.attributes![`${ATTR_EXCEPTION_STACKTRACE}.debug_ids`]).toEqual([
+        DEBUG_ID_2,
+      ]);
     });
   });
 
@@ -591,7 +576,7 @@ describe("SourceMappedSpanExporter", () => {
 
       // Find the debug_ids attribute in the protobuf event
       const debugIdsAttr = event.attributes.find(
-        (attr) => attr.key === `${ATTR_EXCEPTION_STACKTRACE}.debug_ids`
+        (attr) => attr.key === `${ATTR_EXCEPTION_STACKTRACE}.debug_ids`,
       );
       expect(debugIdsAttr).toBeDefined();
 

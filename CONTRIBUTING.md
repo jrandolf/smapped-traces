@@ -13,3 +13,23 @@ If we accept the proposal, a Mathematic maintainer or one of our agents will imp
 ## Pull requests
 
 GitHub limits pull request creation to Mathematic maintainers and repository collaborators with write, maintain, or admin access, plus authorized maintenance agents.
+
+## Maintainer setup
+
+Install the pinned tools and dependencies:
+
+```sh
+mise install
+mise exec -- pnpm install --frozen-lockfile
+mise exec -- hk install
+```
+
+Before opening a pull request, run:
+
+```sh
+mise exec -- pnpm run build
+mise exec -- pnpm run typecheck
+mise exec -- pnpm run test
+mise exec -- pnpm run audit
+mise exec -- hk check --all --slow
+```

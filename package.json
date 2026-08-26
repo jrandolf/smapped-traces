@@ -1,27 +1,19 @@
 {
   "private": true,
-  "license": "Apache-2.0",
   "repository": {
     "type": "git",
     "url": "https://github.com/mathematic-inc/smapped-traces.git"
   },
-  "packageManager": "pnpm@10.31.0+sha512.e3927388bfaa8078ceb79b748ffc1e8274e84d75163e67bc22e06c0d3aed43dd153151cbf11d7f8301ff4acb98c68bdc5cadf6989532801ffafe3b3e4a63c268",
+  "license": "Apache-2.0",
   "scripts": {
-    "lint": "ultracite check",
-    "format": "ultracite fix",
-    "prepare": "test -n \"$CI\" || lefthook install"
+    "audit": "pnpm audit --audit-level high",
+    "build": "pnpm --recursive run build",
+    "check": "oxlint --deny-warnings . && oxfmt --check .",
+    "fix": "oxlint --fix --deny-warnings . && oxfmt --write .",
+    "format": "oxfmt --write .",
+    "lint": "oxlint --deny-warnings .",
+    "test": "pnpm --recursive run test",
+    "typecheck": "pnpm --recursive run typecheck"
   },
-  "devDependencies": {
-    "@biomejs/biome": "catalog:",
-    "lefthook": "catalog:",
-    "ultracite": "catalog:"
-  },
-  "pnpm": {
-    "onlyBuiltDependencies": [
-      "better-sqlite3",
-      "esbuild",
-      "lefthook",
-      "sharp"
-    ]
-  }
+  "packageManager": "pnpm@11.24.0+sha512.bd27e345e976dcb0be0b7a1228217b049a817e21b1f355c90dbe7dc46671895a8bc1e6d06c24554505ea93ea0b45f489a27ec1bfbc8de6a9659fca0f16fa0000"
 }

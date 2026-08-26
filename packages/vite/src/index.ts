@@ -1,5 +1,6 @@
 import { readFile, rm } from "node:fs/promises";
 import path from "node:path";
+
 import FastGlob from "fast-glob";
 import type { SourceMapStore } from "smapped-traces/store";
 import type { Plugin } from "vite";
@@ -109,9 +110,8 @@ export function sourceMaps(options: SourceMapsOptions = {}): Plugin {
       // the end of the server compile pass; only that pass sees the deploy
       // directory.
       skip =
-        config.plugins.some(
-          (plugin) => plugin.name === "vite-plugin-sveltekit-compile"
-        ) && !config.build.ssr;
+        config.plugins.some((plugin) => plugin.name === "vite-plugin-sveltekit-compile") &&
+        !config.build.ssr;
       info = (message) => config.logger.info(message);
     },
     closeBundle: {
@@ -125,9 +125,7 @@ export function sourceMaps(options: SourceMapsOptions = {}): Plugin {
           ...collect,
           dir,
         });
-        info(
-          `smapped-traces: stored ${stored} source maps, deleted ${deleted} map files`
-        );
+        info(`smapped-traces: stored ${stored} source maps, deleted ${deleted} map files`);
       },
     },
   };
@@ -143,14 +141,14 @@ export function sourceMaps(options: SourceMapsOptions = {}): Plugin {
  * to order against — and run it after that pipeline completes.
  */
 export async function collectSourceMaps(
-  options: CollectSourceMapsOptions
+  options: CollectSourceMapsOptions,
 ): Promise<CollectSourceMapsResult> {
   const maps = await FastGlob("**/*.map", { cwd: options.dir, dot: true });
   const included = new Set(
     await FastGlob(options.include ?? "**/*.{,c,m}js.map", {
       cwd: options.dir,
       dot: true,
-    })
+    }),
   );
 
   const missingDebugIds: string[] = [];
@@ -158,14 +156,11 @@ export async function collectSourceMaps(
 
   const store = await options.store(options.dir);
   try {
-    await Promise.all(
+    const results = await Promise.allSettled(
       maps
         .filter((relative) => included.has(relative))
         .map(async (relative) => {
-          const content = await readFile(
-            path.join(options.dir, relative),
-            "utf8"
-          );
+          const content = await readFile(path.join(options.dir, relative), "utf8");
           const { debugId } = JSON.parse(content) as { debugId?: unknown };
           if (typeof debugId === "string" && debugId.length > 0) {
             await store.put(debugId, content);
@@ -173,18 +168,20 @@ export async function collectSourceMaps(
           } else {
             missingDebugIds.push(relative);
           }
-        })
+        }),
     );
-    await Promise.all(
-      maps.map((relative) => rm(path.join(options.dir, relative)))
-    );
+    const failure = results.find((result) => result.status === "rejected");
+    if (failure) {
+      throw failure.reason;
+    }
+    await Promise.all(maps.map((relative) => rm(path.join(options.dir, relative))));
   } finally {
     store.close?.();
   }
 
   if (missingDebugIds.length > 0) {
     throw new Error(
-      `source maps missing debugId (sourceMaps plugin not applied?):\n  ${missingDebugIds.sort().join("\n  ")}`
+      `source maps missing debugId (sourceMaps plugin not applied?):\n  ${missingDebugIds.toSorted().join("\n  ")}`,
     );
   }
 

@@ -1,9 +1,6 @@
 import { afterEach, beforeEach, describe, expect, it } from "vitest";
-import {
-  extractDebugIdsFromStack,
-  getDebugIdsByUrl,
-  resetDebugIdCache,
-} from "./debug-ids.js";
+
+import { extractDebugIdsFromStack, getDebugIdsByUrl, resetDebugIdCache } from "./debug-ids.js";
 
 interface DebugIdGlobals {
   __DEBUG_IDS__?: Record<string, string>;
@@ -46,9 +43,7 @@ describe("debug-ids", () => {
 
       const result = getDebugIdsByUrl();
       expect(result.size).toBe(1);
-      expect(
-        result.get("http://localhost:3000/_next/static/chunks/page.js")
-      ).toBe(debugId);
+      expect(result.get("http://localhost:3000/_next/static/chunks/page.js")).toBe(debugId);
     });
 
     it("reads URL keys directly from __DEBUG_IDS__", () => {
@@ -59,17 +54,14 @@ describe("debug-ids", () => {
 
       const result = getDebugIdsByUrl();
       expect(result.size).toBe(1);
-      expect(
-        result.get("http://localhost:3000/_next/static/chunks/app.js")
-      ).toBe(debugId);
+      expect(result.get("http://localhost:3000/_next/static/chunks/app.js")).toBe(debugId);
     });
 
     it("merges entries from both globals", () => {
       const debugId1 = "550e8400-e29b-41d4-a716-446655440001";
       const debugId2 = "660e8400-e29b-41d4-a716-446655440002";
       g()._debugIds = {
-        "Error\n    at http://localhost:3000/_next/static/chunks/page.js:1:172":
-          debugId1,
+        "Error\n    at http://localhost:3000/_next/static/chunks/page.js:1:172": debugId1,
       };
       g().__DEBUG_IDS__ = {
         "http://localhost:3000/_next/static/chunks/vendor.js": debugId2,
@@ -77,20 +69,15 @@ describe("debug-ids", () => {
 
       const result = getDebugIdsByUrl();
       expect(result.size).toBe(2);
-      expect(
-        result.get("http://localhost:3000/_next/static/chunks/page.js")
-      ).toBe(debugId1);
-      expect(
-        result.get("http://localhost:3000/_next/static/chunks/vendor.js")
-      ).toBe(debugId2);
+      expect(result.get("http://localhost:3000/_next/static/chunks/page.js")).toBe(debugId1);
+      expect(result.get("http://localhost:3000/_next/static/chunks/vendor.js")).toBe(debugId2);
     });
 
     it("_debugIds takes precedence over __DEBUG_IDS__ for the same URL", () => {
       const turbopackId = "550e8400-e29b-41d4-a716-446655440001";
       const specId = "660e8400-e29b-41d4-a716-446655440002";
       g()._debugIds = {
-        "Error\n    at http://localhost:3000/_next/static/chunks/page.js:1:172":
-          turbopackId,
+        "Error\n    at http://localhost:3000/_next/static/chunks/page.js:1:172": turbopackId,
       };
       g().__DEBUG_IDS__ = {
         "http://localhost:3000/_next/static/chunks/page.js": specId,
@@ -98,36 +85,27 @@ describe("debug-ids", () => {
 
       const result = getDebugIdsByUrl();
       expect(result.size).toBe(1);
-      expect(
-        result.get("http://localhost:3000/_next/static/chunks/page.js")
-      ).toBe(turbopackId);
+      expect(result.get("http://localhost:3000/_next/static/chunks/page.js")).toBe(turbopackId);
     });
 
     it("handles multiple debug ID mappings", () => {
       const debugId1 = "550e8400-e29b-41d4-a716-446655440001";
       const debugId2 = "550e8400-e29b-41d4-a716-446655440002";
       g()._debugIds = {
-        "Error\n    at http://localhost:3000/_next/static/chunks/page.js:1:172":
-          debugId1,
-        "Error\n    at http://localhost:3000/_next/static/chunks/main.js:5:42":
-          debugId2,
+        "Error\n    at http://localhost:3000/_next/static/chunks/page.js:1:172": debugId1,
+        "Error\n    at http://localhost:3000/_next/static/chunks/main.js:5:42": debugId2,
       };
 
       const result = getDebugIdsByUrl();
       expect(result.size).toBe(2);
-      expect(
-        result.get("http://localhost:3000/_next/static/chunks/page.js")
-      ).toBe(debugId1);
-      expect(
-        result.get("http://localhost:3000/_next/static/chunks/main.js")
-      ).toBe(debugId2);
+      expect(result.get("http://localhost:3000/_next/static/chunks/page.js")).toBe(debugId1);
+      expect(result.get("http://localhost:3000/_next/static/chunks/main.js")).toBe(debugId2);
     });
 
     it("caches results and returns same map for subsequent calls", () => {
       const debugId = "550e8400-e29b-41d4-a716-446655440000";
       g()._debugIds = {
-        "Error\n    at http://localhost:3000/_next/static/chunks/page.js:1:172":
-          debugId,
+        "Error\n    at http://localhost:3000/_next/static/chunks/page.js:1:172": debugId,
       };
 
       const result1 = getDebugIdsByUrl();
@@ -139,17 +117,15 @@ describe("debug-ids", () => {
     it("invalidates cache when new _debugIds entries are added", () => {
       const debugId1 = "550e8400-e29b-41d4-a716-446655440001";
       g()._debugIds = {
-        "Error\n    at http://localhost:3000/_next/static/chunks/page.js:1:172":
-          debugId1,
+        "Error\n    at http://localhost:3000/_next/static/chunks/page.js:1:172": debugId1,
       };
 
       const result1 = getDebugIdsByUrl();
       expect(result1.size).toBe(1);
 
       const debugId2 = "550e8400-e29b-41d4-a716-446655440002";
-      g()._debugIds![
-        "Error\n    at http://localhost:3000/_next/static/chunks/main.js:5:42"
-      ] = debugId2;
+      g()._debugIds!["Error\n    at http://localhost:3000/_next/static/chunks/main.js:5:42"] =
+        debugId2;
 
       const result2 = getDebugIdsByUrl();
       expect(result2.size).toBe(2);
@@ -158,8 +134,7 @@ describe("debug-ids", () => {
 
     it("invalidates cache when new __DEBUG_IDS__ entries are added", () => {
       g().__DEBUG_IDS__ = {
-        "http://localhost:3000/_next/static/chunks/page.js":
-          "550e8400-e29b-41d4-a716-446655440001",
+        "http://localhost:3000/_next/static/chunks/page.js": "550e8400-e29b-41d4-a716-446655440001",
       };
 
       const result1 = getDebugIdsByUrl();
@@ -182,9 +157,7 @@ describe("debug-ids", () => {
 
       const result = getDebugIdsByUrl();
       // Only the first URL from each pattern should be mapped
-      expect(
-        result.get("http://localhost:3000/_next/static/chunks/page.js")
-      ).toBe(debugId);
+      expect(result.get("http://localhost:3000/_next/static/chunks/page.js")).toBe(debugId);
     });
   });
 
@@ -200,8 +173,7 @@ describe("debug-ids", () => {
     it("extracts debug IDs from _debugIds", () => {
       const debugId = "550e8400-e29b-41d4-a716-446655440000";
       g()._debugIds = {
-        "Error\n    at http://localhost:3000/_next/static/chunks/page.js:1:172":
-          debugId,
+        "Error\n    at http://localhost:3000/_next/static/chunks/page.js:1:172": debugId,
       };
 
       const stackTrace = `Error: Something went wrong
@@ -229,8 +201,7 @@ describe("debug-ids", () => {
       const debugId1 = "550e8400-e29b-41d4-a716-446655440001";
       const debugId2 = "660e8400-e29b-41d4-a716-446655440002";
       g()._debugIds = {
-        "Error\n    at http://localhost:3000/_next/static/chunks/page.js:1:172":
-          debugId1,
+        "Error\n    at http://localhost:3000/_next/static/chunks/page.js:1:172": debugId1,
       };
       g().__DEBUG_IDS__ = {
         "http://localhost:3000/_next/static/chunks/vendor.js": debugId2,
@@ -249,8 +220,7 @@ describe("debug-ids", () => {
     it("returns unique debug IDs only", () => {
       const debugId = "550e8400-e29b-41d4-a716-446655440000";
       g()._debugIds = {
-        "Error\n    at http://localhost:3000/_next/static/chunks/page.js:1:172":
-          debugId,
+        "Error\n    at http://localhost:3000/_next/static/chunks/page.js:1:172": debugId,
       };
 
       const stackTrace = `Error: Something went wrong
@@ -267,10 +237,8 @@ describe("debug-ids", () => {
       const debugId1 = "550e8400-e29b-41d4-a716-446655440001";
       const debugId2 = "550e8400-e29b-41d4-a716-446655440002";
       g()._debugIds = {
-        "Error\n    at http://localhost:3000/_next/static/chunks/page.js:1:172":
-          debugId1,
-        "Error\n    at http://localhost:3000/_next/static/chunks/main.js:5:42":
-          debugId2,
+        "Error\n    at http://localhost:3000/_next/static/chunks/page.js:1:172": debugId1,
+        "Error\n    at http://localhost:3000/_next/static/chunks/main.js:5:42": debugId2,
       };
 
       const stackTrace = `Error: Something went wrong
@@ -286,8 +254,7 @@ describe("debug-ids", () => {
     it("ignores files not in the debug ID mapping", () => {
       const debugId = "550e8400-e29b-41d4-a716-446655440000";
       g()._debugIds = {
-        "Error\n    at http://localhost:3000/_next/static/chunks/page.js:1:172":
-          debugId,
+        "Error\n    at http://localhost:3000/_next/static/chunks/page.js:1:172": debugId,
       };
 
       const stackTrace = `Error: Something went wrong
@@ -300,8 +267,7 @@ describe("debug-ids", () => {
     it("handles V8 style stack traces", () => {
       const debugId = "550e8400-e29b-41d4-a716-446655440000";
       g()._debugIds = {
-        "Error\n    at http://localhost:3000/_next/static/chunks/app.js:10:20":
-          debugId,
+        "Error\n    at http://localhost:3000/_next/static/chunks/app.js:10:20": debugId,
       };
 
       const stackTrace = `TypeError: Cannot read property 'foo' of undefined

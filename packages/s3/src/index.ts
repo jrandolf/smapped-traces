@@ -1,8 +1,4 @@
-import {
-  GetObjectCommand,
-  PutObjectCommand,
-  type S3Client,
-} from "@aws-sdk/client-s3";
+import { GetObjectCommand, PutObjectCommand, type S3Client } from "@aws-sdk/client-s3";
 import type { SourceMapStore } from "smapped-traces/store";
 
 /**
@@ -46,7 +42,7 @@ export function createS3Store(options: S3StoreOptions): SourceMapStore {
     async get(debugId) {
       try {
         const response = await client.send(
-          new GetObjectCommand({ Bucket: bucket, Key: key(debugId) })
+          new GetObjectCommand({ Bucket: bucket, Key: key(debugId) }),
         );
         return response.Body ? await response.Body.transformToString() : null;
       } catch (error: unknown) {
@@ -64,7 +60,7 @@ export function createS3Store(options: S3StoreOptions): SourceMapStore {
           Key: key(debugId),
           Body: content,
           ContentType: "application/json",
-        })
+        }),
       );
     },
   };

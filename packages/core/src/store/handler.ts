@@ -18,9 +18,7 @@ import type { SourceMapStore } from "./types.js";
  * Bun.serve({ port: 8081, fetch: createStoreHandler(store) })
  * ```
  */
-export function createStoreHandler(
-  store: SourceMapStore
-): (request: Request) => Promise<Response> {
+export function createStoreHandler(store: SourceMapStore): (request: Request) => Promise<Response> {
   return async (request: Request): Promise<Response> => {
     const url = new URL(request.url);
     const segments = url.pathname.split("/").filter(Boolean);

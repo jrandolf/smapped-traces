@@ -1,4 +1,5 @@
 import { afterEach, beforeEach, describe, expect, it, vi } from "vitest";
+
 import { createStoreHandler } from "./handler.js";
 import { createHttpStore } from "./http.js";
 import type { SourceMapStore } from "./types.js";
@@ -28,18 +29,14 @@ describe("Store Handler", () => {
     const content = JSON.stringify({ version: 3, mappings: "AAAA" });
     await store.put("abc-123", content);
 
-    const response = await handler(
-      new Request("http://localhost/abc-123", { method: "GET" })
-    );
+    const response = await handler(new Request("http://localhost/abc-123", { method: "GET" }));
     expect(response.status).toBe(200);
     const body = await response.text();
     expect(JSON.parse(body)).toEqual(JSON.parse(content));
   });
 
   it("GET /:debugId returns 404 for non-existent entry", async () => {
-    const response = await handler(
-      new Request("http://localhost/missing-id", { method: "GET" })
-    );
+    const response = await handler(new Request("http://localhost/missing-id", { method: "GET" }));
     expect(response.status).toBe(404);
   });
 
@@ -50,7 +47,7 @@ describe("Store Handler", () => {
         method: "PUT",
         body: content,
         headers: { "content-type": "application/json" },
-      })
+      }),
     );
     expect(response.status).toBe(204);
 
@@ -63,30 +60,24 @@ describe("Store Handler", () => {
       new Request("http://localhost/some-id", {
         method: "POST",
         body: "{}",
-      })
+      }),
     );
     expect(response.status).toBe(405);
   });
 
   it("DELETE method returns 405", async () => {
-    const response = await handler(
-      new Request("http://localhost/some-id", { method: "DELETE" })
-    );
+    const response = await handler(new Request("http://localhost/some-id", { method: "DELETE" }));
     expect(response.status).toBe(405);
   });
 
   it("missing debugId (root path) returns 400", async () => {
-    const response = await handler(
-      new Request("http://localhost/", { method: "GET" })
-    );
+    const response = await handler(new Request("http://localhost/", { method: "GET" }));
     expect(response.status).toBe(400);
   });
 
   it("GET response has content-type: application/json header", async () => {
     await store.put("typed-id", '{"version":3}');
-    const response = await handler(
-      new Request("http://localhost/typed-id", { method: "GET" })
-    );
+    const response = await handler(new Request("http://localhost/typed-id", { method: "GET" }));
     expect(response.headers.get("content-type")).toBe("application/json");
   });
 
@@ -102,12 +93,12 @@ describe("Store Handler", () => {
         method: "PUT",
         body: content,
         headers: { "content-type": "application/json" },
-      })
+      }),
     );
     expect(putResponse.status).toBe(204);
 
     const getResponse = await handler(
-      new Request("http://localhost/round-trip-id", { method: "GET" })
+      new Request("http://localhost/round-trip-id", { method: "GET" }),
     );
     expect(getResponse.status).toBe(200);
     const body = await getResponse.text();
@@ -127,8 +118,8 @@ describe("HTTP Store + Handler Integration", () => {
     vi.stubGlobal(
       "fetch",
       vi.fn(async (url: string | URL | Request, init?: RequestInit) =>
-        handler(new Request(url, init))
-      )
+        handler(new Request(url, init)),
+      ),
     );
 
     httpStore = createHttpStore("http://localhost:8081");
@@ -214,25 +205,17 @@ describe("HTTP Store (unit)", () => {
 
   it("get throws for 500 response", async () => {
     const fetchMock = vi.mocked(globalThis.fetch);
-    fetchMock.mockResolvedValue(
-      new Response("Internal Server Error", { status: 500 })
-    );
+    fetchMock.mockResolvedValue(new Response("Internal Server Error", { status: 500 }));
 
     const store = createHttpStore("http://example.com");
-    await expect(store.get("error-id")).rejects.toThrow(
-      "Store GET failed: HTTP 500"
-    );
+    await expect(store.get("error-id")).rejects.toThrow("Store GET failed: HTTP 500");
   });
 
   it("put throws for non-ok response", async () => {
     const fetchMock = vi.mocked(globalThis.fetch);
-    fetchMock.mockResolvedValue(
-      new Response("Service Unavailable", { status: 503 })
-    );
+    fetchMock.mockResolvedValue(new Response("Service Unavailable", { status: 503 }));
 
     const store = createHttpStore("http://example.com");
-    await expect(store.put("id", '{"version":3}')).rejects.toThrow(
-      "Store PUT failed: HTTP 503"
-    );
+    await expect(store.put("id", '{"version":3}')).rejects.toThrow("Store PUT failed: HTTP 503");
   });
 });

@@ -8,10 +8,8 @@ import type { SourceMapStore } from "./types.js";
  *
  * @param baseUrl The base URL of the store handler (e.g. "https://sourcemaps.example.com").
  */
-const TRAILING_SLASH = /\/$/;
-
 export function createHttpStore(baseUrl: string): SourceMapStore {
-  const url = baseUrl.replace(TRAILING_SLASH, "");
+  const url = baseUrl.endsWith("/") ? baseUrl.slice(0, -1) : baseUrl;
 
   return {
     async get(debugId) {

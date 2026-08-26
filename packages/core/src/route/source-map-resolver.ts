@@ -5,12 +5,9 @@
  * back to their original source locations using a {@link SourceMapStore}.
  */
 
-import {
-  type RawIndexMap,
-  type RawSourceMap,
-  SourceMapConsumer,
-} from "source-map";
+import { type RawIndexMap, type RawSourceMap, SourceMapConsumer } from "source-map";
 import { parse as parseStackTrace, type StackFrame } from "stacktrace-parser";
+
 import type { SourceMapStore } from "../store/types.js";
 
 /**
@@ -40,14 +37,13 @@ function formatFrame(frame: StackFrame): string {
 export function formatStackTrace(
   originalTrace: string,
   originalFrames: StackFrame[],
-  resolvedFrames: Map<number, StackFrame>
+  resolvedFrames: Map<number, StackFrame>,
 ): string {
   const lines = originalTrace.split("\n");
   const result: string[] = [];
 
   let frameStartIndex = 0;
-  for (let i = 0; i < lines.length; i++) {
-    const line = lines[i];
+  for (const [i, line] of lines.entries()) {
     if (line.trimStart().startsWith("at ") || line.includes("@")) {
       frameStartIndex = i;
       break;
@@ -55,14 +51,14 @@ export function formatStackTrace(
     result.push(line);
   }
 
-  for (let i = 0; i < originalFrames.length; i++) {
+  for (const [i, frame] of originalFrames.entries()) {
     const resolved = resolvedFrames.get(i);
     if (resolved) {
       result.push(formatFrame(resolved));
     } else {
       const originalLine = lines[frameStartIndex + i];
       if (originalLine === undefined) {
-        result.push(formatFrame(originalFrames[i]));
+        result.push(formatFrame(frame));
       } else {
         result.push(originalLine);
       }
@@ -136,15 +132,11 @@ export interface SourceMapResolver {
 /**
  * Creates a source map resolver instance.
  */
-export function createSourceMapResolver(
-  options: SourceMapResolverOptions
-): SourceMapResolver {
+export function createSourceMapResolver(options: SourceMapResolverOptions): SourceMapResolver {
   const { store, maxCacheSize = 50 } = options;
   const cache = new SourceMapCache(maxCacheSize);
 
-  async function loadSourceMaps(
-    debugIds: string[]
-  ): Promise<Map<string, SourceMapConsumer>> {
+  async function loadSourceMaps(debugIds: string[]): Promise<Map<string, SourceMapConsumer>> {
     const result = new Map<string, SourceMapConsumer>();
     const uncachedIds: string[] = [];
 
@@ -168,16 +160,14 @@ export function createSourceMapResolver(
           if (!content) {
             return;
           }
-          const rawSourceMap = JSON.parse(content) as
-            | RawSourceMap
-            | RawIndexMap;
+          const rawSourceMap = JSON.parse(content) as RawSourceMap | RawIndexMap;
           const consumer = await new SourceMapConsumer(rawSourceMap);
           cache.set(debugId, consumer);
           result.set(debugId, consumer);
         } catch {
           // Skip invalid source maps
         }
-      })
+      }),
     );
 
     return result;
@@ -187,7 +177,7 @@ export function createSourceMapResolver(
     consumer: SourceMapConsumer,
     lineNumber: number,
     columnNumber: number,
-    methodName: string | null
+    methodName: string | null,
   ): StackFrame | null {
     try {
       const original = consumer.originalPositionFor({
@@ -212,7 +202,7 @@ export function createSourceMapResolver(
 
   function resolveFrame(
     frame: StackFrame,
-    consumers: Map<string, SourceMapConsumer>
+    consumers: Map<string, SourceMapConsumer>,
   ): StackFrame | null {
     const lineNumber = frame.lineNumber ?? 0;
     const columnNumber = frame.column ?? 0;
@@ -222,7 +212,7 @@ export function createSourceMapResolver(
         consumer,
         lineNumber,
         columnNumber,
-        frame.methodName || null
+        frame.methodName || null,
       );
       if (resolved) {
         return resolved;
@@ -232,10 +222,7 @@ export function createSourceMapResolver(
     return null;
   }
 
-  async function resolveStackTrace(
-    stackTrace: string,
-    debugIds: string[]
-  ): Promise<string> {
+  async function resolveStackTrace(stackTrace: string, debugIds: string[]): Promise<string> {
     if (debugIds.length === 0) {
       return stackTrace;
     }
@@ -248,8 +235,7 @@ export function createSourceMapResolver(
     const frames = parseStackTrace(stackTrace);
     const resolvedFrames = new Map<number, StackFrame>();
 
-    for (let i = 0; i < frames.length; i++) {
-      const frame = frames[i];
+    for (const [i, frame] of frames.entries()) {
       const resolved = resolveFrame(frame, consumers);
       if (resolved) {
         resolvedFrames.set(i, resolved);

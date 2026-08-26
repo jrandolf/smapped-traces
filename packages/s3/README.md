@@ -46,7 +46,7 @@ const store = createS3Store({
 
 ### Google Cloud Storage
 
-GCS provides an [S3-compatible endpoint](https://cloud.google.com/storage/docs/interoperability):
+GCS provides an [S3-compatible endpoint](https://docs.cloud.google.com/storage/docs/interoperability):
 
 ```ts
 import { S3Client } from "@aws-sdk/client-s3";
