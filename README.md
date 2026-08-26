@@ -204,6 +204,10 @@ Both are checked and merged automatically.
 - Next.js 16+ (only for `@smapped-traces/nextjs` — uses `runAfterProductionCompile` hook)
 - OpenTelemetry SDK v2+
 
+## Contributing
+
+We review change proposals in Discussions before code. [Start a Discussion](../../discussions/new) and wait for a maintainer's review. If we accept the proposal, a Mathematic maintainer or agent will implement it and open the pull request. Pull requests are limited to repository owners, Mathematic organization members, repository collaborators, and the approved maintenance bots Renovate and Dependabot. See [CONTRIBUTING.md](./CONTRIBUTING.md) for the full process.
+
 ## License
 
 Apache-2.0
