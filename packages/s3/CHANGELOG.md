@@ -1,5 +1,12 @@
 # Changelog
 
+## [0.1.4](https://github.com/mathematic-inc/smapped-traces/compare/s3-v0.1.3...s3-v0.1.4) (2026-08-27)
+
+
+### Bug Fixes
+
+* **packages:** Declare required Node.js versions ([d26fe8c](https://github.com/mathematic-inc/smapped-traces/commit/d26fe8c1835108c0aa5d88d96f2e19c6be0b1dd3))
+
 ## [0.1.3](https://github.com/mathematic-inc/smapped-traces/compare/s3-v0.1.2...s3-v0.1.3) (2026-05-06)
 
 
