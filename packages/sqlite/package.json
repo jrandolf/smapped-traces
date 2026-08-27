@@ -46,5 +46,8 @@
   "peerDependencies": {
     "better-sqlite3": "catalog:",
     "smapped-traces": "workspace:^"
+  },
+  "engines": {
+    "node": ">=22"
   }
 }
