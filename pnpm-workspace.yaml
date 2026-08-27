@@ -15,6 +15,7 @@ catalog:
   "@types/better-sqlite3": ^9.6.0
   "@types/node": ^26.3.0
   better-sqlite3: ^13.0.3
+  esbuild: ^0.28.2
   fast-glob: ^3.3.3
   next: ^16.3.3
   source-map: ^0.8.0
