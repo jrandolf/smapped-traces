@@ -42,5 +42,8 @@
   "peerDependencies": {
     "@aws-sdk/client-s3": "catalog:",
     "smapped-traces": "workspace:^"
+  },
+  "engines": {
+    "node": ">=20.0.0"
   }
 }
