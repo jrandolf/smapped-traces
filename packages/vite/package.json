@@ -41,6 +41,7 @@
   },
   "devDependencies": {
     "@types/node": "catalog:",
+    "esbuild": "catalog:",
     "smapped-traces": "workspace:*",
     "typescript": "catalog:",
     "vite": "catalog:",
